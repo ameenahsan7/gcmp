@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join GSMP — Become a Founding Member</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card">
+      <a href="../index.html" class="nav-logo">
+        <span class="logo-icon">G</span>
+        <span class="logo-text">GSMP</span>
+      </a>
+      <h1>Become a Founding Member</h1>
+      <p class="auth-sub">Join the Galen Society of Medical Professionals. It's free.</p>
+
+      <div id="errorMsg" style="display:none; background:#FEE2E2; color:#991B1B; padding:12px 16px; border-radius:6px; font-size:14px; margin-bottom:16px;"></div>
+      <div id="successMsg" style="display:none; background:#D1FAE5; color:#065F46; padding:12px 16px; border-radius:6px; font-size:14px; margin-bottom:16px;"></div>
+
+      <form id="joinForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" placeholder="Galen" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" placeholder="of Pergamon" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@medschool.edu" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Min 8 characters" minlength="8" required>
+        </div>
+
+        <div class="form-group">
+          <label for="school">Medical School / Institution</label>
+          <input type="text" id="school" placeholder="e.g. Johns Hopkins, UCL, AIIMS" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="year">Role / Year</label>
+            <select id="year" required>
+              <option value="" disabled selected>Select</option>
+              <option>Pre-Med</option>
+              <option>Year 1</option>
+              <option>Year 2</option>
+              <option>Year 3</option>
+              <option>Year 4</option>
+              <option>Year 5+</option>
+              <option>Intern / Resident</option>
+              <option>Practicing Physician</option>
+              <option>Researcher</option>
+              <option>Allied Health</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="country">Country</label>
+            <input type="text" id="country" placeholder="e.g. USA, UK, India" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="interests">Interests (optional)</label>
+          <input type="text" id="interests" placeholder="e.g. Surgery, Research, Global Health">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">Create My Account</button>
+      </form>
+
+      <p class="auth-footer">
+        Already a member? <a href="login.html">Log in</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script>
+    const form = document.getElementById('joinForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+      submitBtn.textContent = 'Creating account...';
+      submitBtn.disabled = true;
+
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const school = document.getElementById('school').value.trim();
+      const year = document.getElementById('year').value;
+      const country = document.getElementById('country').value.trim();
+      const interests = document.getElementById('interests').value.trim();
+
+      try {
+        // 1. Create auth user
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { first_name: firstName, last_name: lastName }
+          }
+        });
+
+        if (authError) throw authError;
+
+        // 2. Insert member profile
+        if (authData.user) {
+          const { error: profileError } = await supabase.from('members').insert({
+            id: authData.user.id,
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            school: school,
+            year: year,
+            country: country,
+            interests: interests,
+          });
+
+          if (profileError) {
+            console.error('Profile insert error:', profileError);
+            // Don't block — auth succeeded, profile can be retried
+          }
+        }
+
+        // 3. Check if email confirmation is required
+        if (authData.session) {
+          // Auto-confirmed — go straight to dashboard
+          window.location.href = 'dashboard.html';
+        } else {
+          // Email confirmation required
+          successMsg.textContent = 'Account created! Check your email to confirm, then log in.';
+          successMsg.style.display = 'block';
+          submitBtn.textContent = 'Account Created';
+        }
+
+      } catch (err) {
+        errorMsg.textContent = err.message || 'Something went wrong. Please try again.';
+        errorMsg.style.display = 'block';
+        submitBtn.textContent = 'Create My Account';
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

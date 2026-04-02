@@ -294,7 +294,7 @@
 
     // ========== MEMBERS ==========
     async function loadMembers() {
-      const { data, error } = await sb.from('members').select('*').order('created_at', { ascending: false });
+      const { data, error } = await sb.from('members').select('*').order('first_name');
       if (error) { showMsg('Error loading members: ' + error.message, 'error'); return; }
       const tbody = document.getElementById('membersTable');
       if (!data || !data.length) {

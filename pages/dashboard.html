@@ -148,7 +148,7 @@
       const userId = session.user.id;
 
       // Fetch member profile from database
-      const { data: member, error } = await supabase
+      const { data: member, error } = await sb
         .from('members')
         .select('*')
         .eq('id', userId)
@@ -175,7 +175,7 @@
       }
 
       // Fetch upcoming events from database
-      const { data: events } = await supabase
+      const { data: events } = await sb
         .from('events')
         .select('*')
         .gte('event_date', new Date().toISOString())

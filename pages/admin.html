@@ -204,16 +204,24 @@
             <input type="number" id="codeMaxUses" value="0" min="0">
           </div>
         </div>
-        <div class="form-group">
-          <label>Note (optional)</label>
-          <input type="text" id="codeNote" placeholder="e.g. For Dubai launch event">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Chapter</label>
+            <select id="codeChapter">
+              <option value="">— Select Chapter —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Note (optional)</label>
+            <input type="text" id="codeNote" placeholder="e.g. For Dubai launch event">
+          </div>
         </div>
         <button class="btn-sm btn-add" onclick="addCode()">Create Code</button>
       </div>
 
       <table class="admin-table">
         <thead>
-          <tr><th>Code</th><th>Note</th><th>Used</th><th>Max</th><th>Active</th><th></th></tr>
+          <tr><th>Code</th><th>Chapter</th><th>Note</th><th>Used</th><th>Max</th><th>Active</th><th></th></tr>
         </thead>
         <tbody id="codesTable">
           <tr><td colspan="6" class="loading-text">Loading...</td></tr>
@@ -406,17 +414,28 @@
     }
 
     // ========== REFERRAL CODES ==========
+    function populateCodeChapterDropdown() {
+      const sel = document.getElementById('codeChapter');
+      sel.innerHTML = '<option value="">— Select Chapter —</option>' +
+        chapters.map(ch => `<option value="${ch.id}">${ch.name} (${ch.city || ch.country || ''})</option>`).join('');
+    }
+
     async function loadCodes() {
       const { data, error } = await sb.from('referral_codes').select('*').order('code');
       if (error) { showMsg('Error loading codes: ' + error.message, 'error'); return; }
       const tbody = document.getElementById('codesTable');
       if (!data || !data.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="color:#9ca3af;">No referral codes yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="color:#9ca3af;">No referral codes yet.</td></tr>';
         return;
       }
+      // Map chapter IDs to names for display
+      const chapterMap = {};
+      chapters.forEach(ch => { chapterMap[ch.id] = ch.name; });
+
       tbody.innerHTML = data.map(c => `
         <tr>
           <td><strong style="font-family:monospace;letter-spacing:1px;">${c.code}</strong></td>
+          <td>${c.chapter_id ? (chapterMap[c.chapter_id] || '—') : '<span style="color:#9ca3af;">—</span>'}</td>
           <td>${c.note || '—'}</td>
           <td>${c.times_used || 0}</td>
           <td>${c.max_uses || '∞'}</td>
@@ -433,14 +452,17 @@
       const code = document.getElementById('codeValue').value.trim().toUpperCase();
       const max_uses = parseInt(document.getElementById('codeMaxUses').value) || 0;
       const note = document.getElementById('codeNote').value.trim();
+      const chapter_id = document.getElementById('codeChapter').value || null;
       if (!code) { showMsg('Code is required.', 'error'); return; }
+      if (!chapter_id) { showMsg('Please select a chapter for this code.', 'error'); return; }
 
-      const { error } = await sb.from('referral_codes').insert({ code, max_uses, note, active: true, times_used: 0 });
+      const { error } = await sb.from('referral_codes').insert({ code, max_uses, note, chapter_id, active: true, times_used: 0 });
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
       showMsg('Code created!', 'success');
       document.getElementById('codeValue').value = '';
       document.getElementById('codeNote').value = '';
       document.getElementById('codeMaxUses').value = '0';
+      document.getElementById('codeChapter').value = '';
       loadCodes();
       loadAnalytics();
     }
@@ -485,8 +507,9 @@
         return;
       }
 
-      // Load chapters first (needed for member dropdown), then rest in parallel
+      // Load chapters first (needed for member + code dropdowns), then rest in parallel
       await loadChapters();
+      populateCodeChapterDropdown();
       loadEvents();
       loadMembers();
       loadCodes();

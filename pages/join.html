@@ -147,14 +147,16 @@
           const tag = (firstName.substring(0,4) + '-' + Math.random().toString(36).substring(2,6)).toUpperCase();
           const personalCode = tag;
 
-          // Auto-assign chapter from referrer
-          let chapterId = null;
-          const { data: referrer } = await sb.from('members')
-            .select('chapter_id')
-            .eq('referral_code', referralCode)
-            .single();
-          if (referrer && referrer.chapter_id) {
-            chapterId = referrer.chapter_id;
+          // Auto-assign chapter: first from code itself, then from referrer member
+          let chapterId = codeData.chapter_id || null;
+          if (!chapterId) {
+            const { data: referrer } = await sb.from('members')
+              .select('chapter_id')
+              .eq('referral_code', referralCode)
+              .single();
+            if (referrer && referrer.chapter_id) {
+              chapterId = referrer.chapter_id;
+            }
           }
 
           const { error: profileError } = await sb.from('members').insert({

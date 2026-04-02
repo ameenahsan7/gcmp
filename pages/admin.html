@@ -32,8 +32,6 @@
     .btn-add:hover { opacity: 0.9; }
     .btn-danger { background: #EF4444; color: #fff; }
     .btn-danger:hover { background: #DC2626; }
-    .btn-assign { background: var(--gold); color: #fff; }
-    .btn-assign:hover { opacity: 0.9; }
     .admin-actions { display: flex; gap: 6px; }
     .admin-msg { padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-bottom: 16px; display: none; }
     .admin-msg.success { display: block; background: #D1FAE5; color: #065F46; }
@@ -42,6 +40,18 @@
     .admin-back:hover { text-decoration: underline; }
     .member-chapter-select { padding: 4px 8px; font-size: 13px; border: 1px solid #d1d5db; border-radius: 4px; }
     .loading-text { color: #9ca3af; font-style: italic; padding: 20px 0; }
+    .chapter-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+    .chapter-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .chapter-card-header h4 { font-size: 16px; color: var(--navy); margin: 0; }
+    .chapter-meta { font-size: 13px; color: #6b7280; }
+    .chapter-codes { margin-top: 12px; padding-top: 12px; border-top: 1px solid #f3f4f6; }
+    .chapter-codes h5 { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+    .code-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 13px; }
+    .code-badge { font-family: monospace; font-weight: 700; letter-spacing: 1px; background: #f3f4f6; padding: 4px 10px; border-radius: 4px; color: var(--navy); }
+    .code-meta { color: #6b7280; }
+    .add-code-inline { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+    .add-code-inline input { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; text-transform: uppercase; width: 140px; }
+    .add-code-inline input[type="number"] { width: 70px; }
   </style>
 </head>
 <body>
@@ -57,7 +67,7 @@
     <div id="adminMsg" class="admin-msg"></div>
 
     <!-- ANALYTICS -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;">
       <div style="background:#f9fafb;border-radius:8px;padding:16px;text-align:center;">
         <div style="font-size:28px;font-weight:700;color:var(--navy);" id="statMembers">-</div>
         <div style="font-size:12px;color:#6b7280;margin-top:2px;">Members</div>
@@ -70,17 +80,12 @@
         <div style="font-size:28px;font-weight:700;color:var(--navy);" id="statEvents">-</div>
         <div style="font-size:12px;color:#6b7280;margin-top:2px;">Events</div>
       </div>
-      <div style="background:#f9fafb;border-radius:8px;padding:16px;text-align:center;">
-        <div style="font-size:28px;font-weight:700;color:var(--navy);" id="statCodes">-</div>
-        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Active Codes</div>
-      </div>
     </div>
 
     <div class="admin-tabs">
       <button class="admin-tab active" data-tab="chapters">Chapters</button>
       <button class="admin-tab" data-tab="events">Events</button>
       <button class="admin-tab" data-tab="members">Members</button>
-      <button class="admin-tab" data-tab="codes">Referral Codes</button>
     </div>
 
     <!-- CHAPTERS TAB -->
@@ -117,14 +122,9 @@
         <button class="btn-sm btn-add" onclick="addChapter()">Add Chapter</button>
       </div>
 
-      <table class="admin-table">
-        <thead>
-          <tr><th>Name</th><th>City</th><th>Country</th><th>Status</th><th>Members</th><th></th></tr>
-        </thead>
-        <tbody id="chaptersTable">
-          <tr><td colspan="6" class="loading-text">Loading...</td></tr>
-        </tbody>
-      </table>
+      <div id="chapterCards">
+        <p class="loading-text">Loading chapters...</p>
+      </div>
     </div>
 
     <!-- EVENTS TAB -->
@@ -173,7 +173,7 @@
           <tr><th>Title</th><th>Type</th><th>Date</th><th>Location</th><th>Portal</th><th></th></tr>
         </thead>
         <tbody id="eventsTable">
-          <tr><td colspan="5" class="loading-text">Loading...</td></tr>
+          <tr><td colspan="6" class="loading-text">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -182,48 +182,9 @@
     <div class="tab-content" id="tab-members">
       <table class="admin-table">
         <thead>
-          <tr><th>Name</th><th>Email</th><th>Institution</th><th>Chapter</th><th>Referred By</th><th>Their Code</th><th></th></tr>
+          <tr><th>Name</th><th>Email</th><th>Institution</th><th>Chapter</th><th>Referred By</th><th></th></tr>
         </thead>
         <tbody id="membersTable">
-          <tr><td colspan="7" class="loading-text">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- REFERRAL CODES TAB -->
-    <div class="tab-content" id="tab-codes">
-      <div class="admin-form">
-        <h3>Create Referral Code</h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Code</label>
-            <input type="text" id="codeValue" placeholder="e.g. GSMP2026" style="text-transform:uppercase;">
-          </div>
-          <div class="form-group">
-            <label>Max Uses (0 = unlimited)</label>
-            <input type="number" id="codeMaxUses" value="0" min="0">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Chapter</label>
-            <select id="codeChapter">
-              <option value="">— Select Chapter —</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Note (optional)</label>
-            <input type="text" id="codeNote" placeholder="e.g. For Dubai launch event">
-          </div>
-        </div>
-        <button class="btn-sm btn-add" onclick="addCode()">Create Code</button>
-      </div>
-
-      <table class="admin-table">
-        <thead>
-          <tr><th>Code</th><th>Chapter</th><th>Note</th><th>Used</th><th>Max</th><th>Active</th><th></th></tr>
-        </thead>
-        <tbody id="codesTable">
           <tr><td colspan="6" class="loading-text">Loading...</td></tr>
         </tbody>
       </table>
@@ -233,10 +194,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../js/supabase-config.js"></script>
   <script>
-    // Admin email whitelist — add your admin emails here
     const ADMIN_EMAILS = ['ameenahsan7@gmail.com', 'ameen.ahsan@propertyfinder.ae'];
 
     let chapters = [];
+    let allCodes = [];
 
     // Tab switching
     document.querySelectorAll('.admin-tab').forEach(tab => {
@@ -255,28 +216,61 @@
       setTimeout(() => { msg.className = 'admin-msg'; }, 4000);
     }
 
-    // ========== CHAPTERS ==========
+    // ========== CHAPTERS (with inline codes) ==========
     async function loadChapters() {
-      const { data, error } = await sb.from('chapters').select('*').order('name');
-      if (error) { showMsg('Error loading chapters: ' + error.message, 'error'); return; }
-      chapters = data || [];
-      const tbody = document.getElementById('chaptersTable');
+      const [chapRes, codeRes] = await Promise.all([
+        sb.from('chapters').select('*').order('name'),
+        sb.from('referral_codes').select('*').order('code')
+      ]);
+      if (chapRes.error) { showMsg('Error loading chapters: ' + chapRes.error.message, 'error'); return; }
+      chapters = chapRes.data || [];
+      allCodes = codeRes.data || [];
+
+      const container = document.getElementById('chapterCards');
       if (!chapters.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="color:#9ca3af;">No chapters yet.</td></tr>';
+        container.innerHTML = '<p style="color:#9ca3af;">No chapters yet. Add one above.</p>';
         return;
       }
-      tbody.innerHTML = chapters.map(ch => `
-        <tr>
-          <td><strong>${ch.name}</strong></td>
-          <td>${ch.city || '—'}</td>
-          <td>${ch.country || '—'}</td>
-          <td>${ch.status || '—'}</td>
-          <td>${ch.member_count || 0}</td>
-          <td class="admin-actions">
-            <button class="btn-sm btn-danger" onclick="deleteChapter('${ch.id}')">Delete</button>
-          </td>
-        </tr>
-      `).join('');
+
+      container.innerHTML = chapters.map(ch => {
+        const chapterCodes = allCodes.filter(c => c.chapter_id === ch.id);
+        const codesHTML = chapterCodes.length
+          ? chapterCodes.map(c => `
+              <div class="code-row">
+                <span class="code-badge">${c.code}</span>
+                <span class="code-meta">Used: ${c.times_used || 0}${c.max_uses ? '/' + c.max_uses : ''}</span>
+                <span class="code-meta">${c.note || ''}</span>
+                <span style="margin-left:auto;display:flex;gap:4px;align-items:center;">
+                  <input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleCode('${c.id}', this.checked)" title="Active">
+                  <button class="btn-sm btn-danger" style="padding:3px 8px;font-size:11px;" onclick="deleteCode('${c.id}')">×</button>
+                </span>
+              </div>
+            `).join('')
+          : '<p style="color:#9ca3af;font-size:13px;margin:0;">No codes yet for this chapter.</p>';
+
+        return `
+          <div class="chapter-card">
+            <div class="chapter-card-header">
+              <div>
+                <h4>${ch.name}</h4>
+                <div class="chapter-meta">${ch.city || ''}${ch.city && ch.country ? ', ' : ''}${ch.country || ''} · ${ch.status || 'active'}</div>
+                ${ch.description ? '<div class="chapter-meta" style="margin-top:4px;">' + ch.description + '</div>' : ''}
+              </div>
+              <button class="btn-sm btn-danger" onclick="deleteChapter('${ch.id}')">Delete</button>
+            </div>
+            <div class="chapter-codes">
+              <h5>Referral Codes</h5>
+              ${codesHTML}
+              <div class="add-code-inline">
+                <input type="text" id="newCode-${ch.id}" placeholder="CODE" maxlength="20">
+                <input type="number" id="newCodeMax-${ch.id}" placeholder="Max" min="0" value="0" title="Max uses (0 = unlimited)">
+                <input type="text" id="newCodeNote-${ch.id}" placeholder="Note" style="width:160px;">
+                <button class="btn-sm btn-add" onclick="addCodeToChapter('${ch.id}')">+ Add</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     async function addChapter() {
@@ -295,13 +289,44 @@
       document.getElementById('chapterCountry').value = '';
       document.getElementById('chapterDesc').value = '';
       loadChapters();
+      loadAnalytics();
     }
 
     async function deleteChapter(id) {
-      if (!confirm('Delete this chapter?')) return;
+      if (!confirm('Delete this chapter and all its referral codes?')) return;
+      // Delete codes for this chapter first
+      await sb.from('referral_codes').delete().eq('chapter_id', id);
       const { error } = await sb.from('chapters').delete().eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
       showMsg('Chapter deleted.', 'success');
+      loadChapters();
+      loadAnalytics();
+    }
+
+    // ========== CODES (inline in chapters) ==========
+    async function addCodeToChapter(chapterId) {
+      const code = document.getElementById('newCode-' + chapterId).value.trim().toUpperCase();
+      const max_uses = parseInt(document.getElementById('newCodeMax-' + chapterId).value) || 0;
+      const note = document.getElementById('newCodeNote-' + chapterId).value.trim();
+      if (!code) { showMsg('Code is required.', 'error'); return; }
+
+      const { error } = await sb.from('referral_codes').insert({ code, max_uses, note, chapter_id: chapterId, active: true, times_used: 0 });
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg('Code added!', 'success');
+      loadChapters();
+    }
+
+    async function toggleCode(id, active) {
+      const { error } = await sb.from('referral_codes').update({ active }).eq('id', id);
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg(active ? 'Code activated.' : 'Code deactivated.', 'success');
+    }
+
+    async function deleteCode(id) {
+      if (!confirm('Delete this code?')) return;
+      const { error } = await sb.from('referral_codes').delete().eq('id', id);
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg('Code deleted.', 'success');
       loadChapters();
     }
 
@@ -349,6 +374,7 @@
       document.getElementById('eventLocation').value = '';
       document.getElementById('eventDesc').value = '';
       loadEvents();
+      loadAnalytics();
     }
 
     async function togglePortal(id, checked) {
@@ -363,6 +389,7 @@
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
       showMsg('Event deleted.', 'success');
       loadEvents();
+      loadAnalytics();
     }
 
     // ========== MEMBERS ==========
@@ -371,11 +398,9 @@
       if (error) { showMsg('Error loading members: ' + error.message, 'error'); return; }
       const tbody = document.getElementById('membersTable');
       if (!data || !data.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="color:#9ca3af;">No members yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="color:#9ca3af;">No members yet.</td></tr>';
         return;
       }
-      // Build chapter options HTML
-      const chapterOptions = chapters.map(ch => `<option value="${ch.id}">${ch.name}</option>`).join('');
       tbody.innerHTML = data.map(m => {
         const selectedChapter = m.chapter_id || '';
         return `
@@ -390,7 +415,6 @@
             </select>
           </td>
           <td><span style="font-family:monospace;font-size:12px;">${m.referred_by || '—'}</span></td>
-          <td><span style="font-family:monospace;font-size:12px;">${m.referral_code || '—'}</span></td>
           <td class="admin-actions">
             <button class="btn-sm btn-danger" onclick="deleteMember('${m.id}')">Remove</button>
           </td>
@@ -413,87 +437,16 @@
       loadMembers();
     }
 
-    // ========== REFERRAL CODES ==========
-    function populateCodeChapterDropdown() {
-      const sel = document.getElementById('codeChapter');
-      sel.innerHTML = '<option value="">— Select Chapter —</option>' +
-        chapters.map(ch => `<option value="${ch.id}">${ch.name} (${ch.city || ch.country || ''})</option>`).join('');
-    }
-
-    async function loadCodes() {
-      const { data, error } = await sb.from('referral_codes').select('*').order('code');
-      if (error) { showMsg('Error loading codes: ' + error.message, 'error'); return; }
-      const tbody = document.getElementById('codesTable');
-      if (!data || !data.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="color:#9ca3af;">No referral codes yet.</td></tr>';
-        return;
-      }
-      // Map chapter IDs to names for display
-      const chapterMap = {};
-      chapters.forEach(ch => { chapterMap[ch.id] = ch.name; });
-
-      tbody.innerHTML = data.map(c => `
-        <tr>
-          <td><strong style="font-family:monospace;letter-spacing:1px;">${c.code}</strong></td>
-          <td>${c.chapter_id ? (chapterMap[c.chapter_id] || '—') : '<span style="color:#9ca3af;">—</span>'}</td>
-          <td>${c.note || '—'}</td>
-          <td>${c.times_used || 0}</td>
-          <td>${c.max_uses || '∞'}</td>
-          <td><input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleCode('${c.id}', this.checked)"></td>
-          <td class="admin-actions">
-            <button class="btn-sm btn-danger" onclick="deleteCode('${c.id}')">Delete</button>
-          </td>
-        </tr>
-      `).join('');
-      return data;
-    }
-
-    async function addCode() {
-      const code = document.getElementById('codeValue').value.trim().toUpperCase();
-      const max_uses = parseInt(document.getElementById('codeMaxUses').value) || 0;
-      const note = document.getElementById('codeNote').value.trim();
-      const chapter_id = document.getElementById('codeChapter').value || null;
-      if (!code) { showMsg('Code is required.', 'error'); return; }
-      if (!chapter_id) { showMsg('Please select a chapter for this code.', 'error'); return; }
-
-      const { error } = await sb.from('referral_codes').insert({ code, max_uses, note, chapter_id, active: true, times_used: 0 });
-      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
-      showMsg('Code created!', 'success');
-      document.getElementById('codeValue').value = '';
-      document.getElementById('codeNote').value = '';
-      document.getElementById('codeMaxUses').value = '0';
-      document.getElementById('codeChapter').value = '';
-      loadCodes();
-      loadAnalytics();
-    }
-
-    async function toggleCode(id, active) {
-      const { error } = await sb.from('referral_codes').update({ active }).eq('id', id);
-      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
-      showMsg(active ? 'Code activated.' : 'Code deactivated.', 'success');
-    }
-
-    async function deleteCode(id) {
-      if (!confirm('Delete this code?')) return;
-      const { error } = await sb.from('referral_codes').delete().eq('id', id);
-      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
-      showMsg('Code deleted.', 'success');
-      loadCodes();
-      loadAnalytics();
-    }
-
     // ========== ANALYTICS ==========
     async function loadAnalytics() {
-      const [members, chaps, evts, codes] = await Promise.all([
+      const [members, chaps, evts] = await Promise.all([
         sb.from('members').select('id', { count: 'exact', head: true }),
         sb.from('chapters').select('id', { count: 'exact', head: true }),
         sb.from('events').select('id', { count: 'exact', head: true }),
-        sb.from('referral_codes').select('id', { count: 'exact', head: true }).eq('active', true),
       ]);
       document.getElementById('statMembers').textContent = members.count || 0;
       document.getElementById('statChapters').textContent = chaps.count || 0;
       document.getElementById('statEvents').textContent = evts.count || 0;
-      document.getElementById('statCodes').textContent = codes.count || 0;
     }
 
     // ========== INIT ==========
@@ -501,21 +454,16 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
 
-      // Admin check
       if (!ADMIN_EMAILS.includes(session.user.email)) {
         document.querySelector('.admin-page').innerHTML = '<div style="text-align:center;padding:80px 20px;"><h2 style="color:#991B1B;">Access Denied</h2><p>You do not have admin privileges.</p><a href="dashboard.html">Back to Dashboard</a></div>';
         return;
       }
 
-      // Load chapters first (needed for member + code dropdowns), then rest in parallel
       await loadChapters();
-      populateCodeChapterDropdown();
       loadEvents();
       loadMembers();
-      loadCodes();
       loadAnalytics();
 
-      // Logout
       document.getElementById('logoutBtn').addEventListener('click', async (e) => {
         e.preventDefault();
         await sb.auth.signOut();

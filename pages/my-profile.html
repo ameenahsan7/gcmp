@@ -154,12 +154,12 @@
             <p id="profileEmail">Loading...</p>
           </div>
           <div class="profile-field">
-            <label>Institution</label>
-            <p id="profileSchool">Loading...</p>
+            <label>Phone</label>
+            <p id="profilePhone">Loading...</p>
           </div>
           <div class="profile-field">
-            <label>Role / Year</label>
-            <p id="profileYear">Loading...</p>
+            <label>Gender</label>
+            <p id="profileGender">Loading...</p>
           </div>
           <div class="profile-field">
             <label>Country</label>
@@ -169,7 +169,27 @@
             <label>Chapter</label>
             <p id="profileChapter">Loading...</p>
           </div>
-          <div class="profile-field" style="grid-column:1/-1;">
+          <div class="profile-field">
+            <label>Institution</label>
+            <p id="profileSchool">Loading...</p>
+          </div>
+          <div class="profile-field">
+            <label>Degree</label>
+            <p id="profileDegree">Loading...</p>
+          </div>
+          <div class="profile-field">
+            <label>Field</label>
+            <p id="profileField">Loading...</p>
+          </div>
+          <div class="profile-field">
+            <label>Specialty</label>
+            <p id="profileSpecialty">Loading...</p>
+          </div>
+          <div class="profile-field">
+            <label>Year / Role</label>
+            <p id="profileYear">Loading...</p>
+          </div>
+          <div class="profile-field">
             <label>Interests</label>
             <p id="profileInterests">Loading...</p>
           </div>
@@ -276,7 +296,12 @@
         _memberData = member;
         document.getElementById('profileName').textContent = `${member.first_name} ${member.last_name}`;
         document.getElementById('profileEmail').textContent = member.email;
+        document.getElementById('profilePhone').textContent = member.phone || '—';
+        document.getElementById('profileGender').textContent = member.gender || '—';
         document.getElementById('profileSchool').textContent = member.school || '—';
+        document.getElementById('profileDegree').textContent = member.degree || '—';
+        document.getElementById('profileField').textContent = member.field || '—';
+        document.getElementById('profileSpecialty').textContent = member.specialty || '—';
         document.getElementById('profileYear').textContent = member.year || '—';
         document.getElementById('profileCountry').textContent = member.country || '—';
         document.getElementById('profileInterests').textContent = member.interests || '—';

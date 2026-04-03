@@ -47,14 +47,52 @@
           <input type="password" id="password" placeholder="Min 8 characters" minlength="8" required>
         </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label for="gender">Gender</label>
+            <select id="gender" required>
+              <option value="" disabled selected>Select</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Prefer not to say</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="country">Country</label>
+            <input type="text" id="country" placeholder="e.g. USA, UK, India" required>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label for="school">Medical School / Institution</label>
+          <label for="school">Institution</label>
           <input type="text" id="school" placeholder="e.g. Johns Hopkins, UCL, AIIMS" required>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="year">Role / Year</label>
+            <label for="degree">Degree</label>
+            <select id="degree" required>
+              <option value="" disabled selected>Select</option>
+              <option>MBBS</option>
+              <option>MD</option>
+              <option>DO</option>
+              <option>BDS</option>
+              <option>MDS</option>
+              <option>BPharm</option>
+              <option>DPharm</option>
+              <option>PharmD</option>
+              <option>BAMS</option>
+              <option>BHMS</option>
+              <option>BPT</option>
+              <option>BSc Nursing</option>
+              <option>MSc</option>
+              <option>PhD</option>
+              <option>MPH</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="year">Year / Role</label>
             <select id="year" required>
               <option value="" disabled selected>Select</option>
               <option>Pre-Med</option>
@@ -69,9 +107,28 @@
               <option>Allied Health</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-row">
           <div class="form-group">
-            <label for="country">Country</label>
-            <input type="text" id="country" placeholder="e.g. USA, UK, India" required>
+            <label for="field">Field</label>
+            <select id="field" required>
+              <option value="" disabled selected>Select</option>
+              <option>Medicine</option>
+              <option>Surgery</option>
+              <option>Dentistry</option>
+              <option>Pharmacy</option>
+              <option>Nursing</option>
+              <option>Physiotherapy</option>
+              <option>Public Health</option>
+              <option>Research</option>
+              <option>Allied Health</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="specialty">Specialty</label>
+            <input type="text" id="specialty" placeholder="e.g. Cardiology, Radiology, Oncology">
           </div>
         </div>
 
@@ -117,6 +174,10 @@
       const school = document.getElementById('school').value.trim();
       const year = document.getElementById('year').value;
       const country = document.getElementById('country').value.trim();
+      const gender = document.getElementById('gender').value;
+      const degree = document.getElementById('degree').value;
+      const field = document.getElementById('field').value;
+      const specialty = document.getElementById('specialty').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const interests = document.getElementById('interests').value.trim();
 
@@ -173,6 +234,10 @@
             school: school,
             year: year,
             country: country,
+            gender: gender,
+            degree: degree,
+            field: field,
+            specialty: specialty || null,
             phone: phone,
             interests: interests,
             referred_by: referralCode,

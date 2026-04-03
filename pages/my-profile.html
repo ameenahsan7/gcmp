@@ -311,10 +311,19 @@
         // Hide footer for clean image
         const footer = card.querySelector('.vc-footer');
         if (footer) footer.style.display = 'none';
-        const origWidth = card.style.width;
-        const origMaxWidth = card.style.maxWidth;
-        card.style.width = '400px';
+
+        // Force business card ratio (3.5:2)
+        const origStyles = card.style.cssText;
+        card.style.width = '420px';
+        card.style.height = '240px';
         card.style.maxWidth = 'none';
+        // Force both panels to fill height
+        const left = card.querySelector('.vc-left');
+        const right = card.querySelector('.vc-right');
+        const origLeftStyle = left ? left.style.cssText : '';
+        const origRightStyle = right ? right.style.cssText : '';
+        if (left) left.style.height = '240px';
+        if (right) right.style.height = '240px';
 
         const canvas = await html2canvas(card, {
           scale: 3,
@@ -323,8 +332,10 @@
           logging: false
         });
 
-        card.style.width = origWidth;
-        card.style.maxWidth = origMaxWidth;
+        // Restore everything
+        card.style.cssText = origStyles;
+        if (left) left.style.cssText = origLeftStyle;
+        if (right) right.style.cssText = origRightStyle;
         if (footer) footer.style.display = '';
 
         const link = document.createElement('a');

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter Admin — GSMP</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    .admin-page { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+    .admin-header h1 { font-family: 'Playfair Display', serif; color: var(--navy); }
+    .admin-header-sub { font-size: 14px; color: #6b7280; margin-top: 2px; }
+    .admin-tabs { display: flex; gap: 0; border-bottom: 2px solid #e5e7eb; margin-bottom: 24px; }
+    .admin-tab { padding: 12px 24px; background: none; border: none; font-size: 15px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+    .admin-tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+    .admin-tab:hover { color: var(--navy); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .admin-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .admin-table th { text-align: left; padding: 10px 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; border-bottom: 2px solid #e5e7eb; }
+    .admin-table td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+    .admin-table tr:hover { background: #f9fafb; }
+    .admin-form { background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+    .admin-form h3 { margin-bottom: 16px; font-size: 16px; color: var(--navy); }
+    .admin-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .admin-form .form-group { margin-bottom: 12px; }
+    .admin-form label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #374151; }
+    .admin-form input, .admin-form select, .admin-form textarea { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; font-family: 'Inter', sans-serif; }
+    .admin-form textarea { resize: vertical; min-height: 60px; }
+    .btn-sm { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+    .btn-add { background: var(--navy); color: #fff; }
+    .btn-add:hover { opacity: 0.9; }
+    .btn-danger { background: #EF4444; color: #fff; }
+    .btn-danger:hover { background: #DC2626; }
+    .admin-actions { display: flex; gap: 6px; }
+    .admin-msg { padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-bottom: 16px; display: none; }
+    .admin-msg.success { display: block; background: #D1FAE5; color: #065F46; }
+    .admin-msg.error { display: block; background: #FEE2E2; color: #991B1B; }
+    .admin-back { text-decoration: none; color: var(--navy); font-size: 14px; font-weight: 500; }
+    .admin-back:hover { text-decoration: underline; }
+    .member-chapter-select { padding: 4px 8px; font-size: 13px; border: 1px solid #d1d5db; border-radius: 4px; }
+    .loading-text { color: #9ca3af; font-style: italic; padding: 20px 0; }
+    .chapter-info { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+    .chapter-info h3 { font-size: 16px; color: var(--navy); margin-bottom: 4px; }
+    .chapter-info-meta { font-size: 13px; color: #6b7280; }
+    .code-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 13px; }
+    .code-badge { font-family: monospace; font-weight: 700; letter-spacing: 1px; background: #f3f4f6; padding: 4px 10px; border-radius: 4px; color: var(--navy); }
+    .code-meta { color: #6b7280; }
+    .add-code-inline { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+    .add-code-inline input { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; text-transform: uppercase; width: 140px; }
+    .add-code-inline input[type="number"] { width: 70px; }
+
+    @media (max-width: 768px) {
+      .admin-page { padding: 20px 12px; }
+      .admin-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .admin-header h1 { font-size: 22px; }
+      .admin-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .admin-tab { padding: 10px 16px; font-size: 13px; white-space: nowrap; }
+      .admin-form .form-row { grid-template-columns: 1fr; }
+      .admin-table { font-size: 12px; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .admin-table th, .admin-table td { padding: 8px 8px; white-space: nowrap; }
+      .member-chapter-select { font-size: 12px; padding: 3px 6px; }
+      .add-code-inline { flex-wrap: wrap; }
+      .add-code-inline input { width: 100% !important; }
+      .code-row { flex-wrap: wrap; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-page">
+    <div class="admin-header">
+      <div>
+        <a href="dashboard.html" class="admin-back">&larr; Back to Dashboard</a>
+        <h1>Chapter Admin</h1>
+        <div class="admin-header-sub" id="chapterLabel">Loading...</div>
+      </div>
+      <a href="#" id="logoutBtn" class="btn btn-ghost" style="font-size:14px;">Log Out</a>
+    </div>
+
+    <div id="adminMsg" class="admin-msg"></div>
+
+    <!-- Chapter stats -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;">
+      <div style="background:#f9fafb;border-radius:8px;padding:16px;text-align:center;">
+        <div style="font-size:28px;font-weight:700;color:var(--navy);" id="statMembers">-</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Members</div>
+      </div>
+      <div style="background:#f9fafb;border-radius:8px;padding:16px;text-align:center;">
+        <div style="font-size:28px;font-weight:700;color:var(--navy);" id="statCodes">-</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Referral Codes</div>
+      </div>
+      <div style="background:#f9fafb;border-radius:8px;padding:16px;text-align:center;">
+        <div style="font-size:28px;font-weight:700;color:var(--navy);" id="statEvents">-</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Events</div>
+      </div>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="members">Members</button>
+      <button class="admin-tab" data-tab="events">Events</button>
+      <button class="admin-tab" data-tab="codes">Referral Codes</button>
+    </div>
+
+    <!-- MEMBERS TAB -->
+    <div class="tab-content active" id="tab-members">
+      <table class="admin-table">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Institution</th><th>Title</th><th>Referred By</th></tr>
+        </thead>
+        <tbody id="membersTable">
+          <tr><td colspan="5" class="loading-text">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- EVENTS TAB -->
+    <div class="tab-content" id="tab-events">
+      <div class="admin-form">
+        <h3>Add Event</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Event Title</label>
+            <input type="text" id="eventTitle" placeholder="e.g. Clinical Research Workshop">
+          </div>
+          <div class="form-group">
+            <label>Event Type</label>
+            <select id="eventType">
+              <option value="Workshop">Workshop</option>
+              <option value="Panel">Panel</option>
+              <option value="Social">Social</option>
+              <option value="Webinar">Webinar</option>
+              <option value="Conference">Conference</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date & Time</label>
+            <input type="datetime-local" id="eventDate">
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" id="eventLocation" placeholder="e.g. Virtual or city name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="eventDesc" placeholder="What is this event about?"></textarea>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="eventPortal" checked>
+          <label for="eventPortal" style="margin:0;">Show in member portal</label>
+        </div>
+        <button class="btn-sm btn-add" onclick="addEvent()">Add Event</button>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr><th>Title</th><th>Type</th><th>Date</th><th>Location</th><th>Portal</th><th></th></tr>
+        </thead>
+        <tbody id="eventsTable">
+          <tr><td colspan="6" class="loading-text">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CODES TAB -->
+    <div class="tab-content" id="tab-codes">
+      <div class="chapter-info" id="chapterInfo">
+        <p class="loading-text">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script>
+    let myChapterId = null;
+    let myChapter = null;
+
+    // Tab switching
+    document.querySelectorAll('.admin-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    function showMsg(text, type) {
+      const msg = document.getElementById('adminMsg');
+      msg.textContent = text;
+      msg.className = 'admin-msg ' + type;
+      setTimeout(() => { msg.className = 'admin-msg'; }, 4000);
+    }
+
+    // ========== MEMBERS (scoped to chapter) ==========
+    async function loadMembers() {
+      const { data, error } = await sb.from('members').select('*').eq('chapter_id', myChapterId).order('first_name');
+      if (error) { showMsg('Error loading members: ' + error.message, 'error'); return; }
+      const tbody = document.getElementById('membersTable');
+      if (!data || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color:#9ca3af;">No members in your chapter yet.</td></tr>';
+        return;
+      }
+      // Chapter leads can assign titles up to Ambassador (not Chapter Lead or Fellow)
+      const TITLE_OPTIONS = ['Member','Active Member','Senior Member','Ambassador'];
+      tbody.innerHTML = data.map(m => {
+        const currentTitle = m.member_title || 'Member';
+        return `
+        <tr>
+          <td><strong>${m.first_name || ''} ${m.last_name || ''}</strong></td>
+          <td>${m.email || '—'}</td>
+          <td>${m.school || '—'}</td>
+          <td>
+            <select class="member-chapter-select" onchange="assignTitle('${m.id}', this.value)">
+              ${TITLE_OPTIONS.map(t => `<option value="${t}" ${t === currentTitle ? 'selected' : ''}>${t}</option>`).join('')}
+            </select>
+          </td>
+          <td><span style="font-family:monospace;font-size:12px;">${m.referred_by || '—'}</span></td>
+        </tr>
+      `}).join('');
+
+      document.getElementById('statMembers').textContent = data.length;
+    }
+
+    async function assignTitle(memberId, title) {
+      const { error } = await sb.from('members').update({ member_title: title }).eq('id', memberId);
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg('Title updated to ' + title + '!', 'success');
+    }
+
+    // ========== EVENTS (all events — chapter leads can add) ==========
+    async function loadEvents() {
+      const { data, error } = await sb.from('events').select('*').order('event_date', { ascending: true });
+      if (error) { showMsg('Error loading events: ' + error.message, 'error'); return; }
+      const tbody = document.getElementById('eventsTable');
+      if (!data || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="color:#9ca3af;">No events yet.</td></tr>';
+        return;
+      }
+      document.getElementById('statEvents').textContent = data.length;
+      tbody.innerHTML = data.map(ev => {
+        const d = ev.event_date ? new Date(ev.event_date).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—';
+        const portalChecked = ev.show_in_portal !== false ? 'checked' : '';
+        return `
+          <tr>
+            <td><strong>${ev.title}</strong></td>
+            <td>${ev.event_type || '—'}</td>
+            <td>${d}</td>
+            <td>${ev.location || '—'}</td>
+            <td><input type="checkbox" ${portalChecked} onchange="togglePortal('${ev.id}', this.checked)"></td>
+            <td class="admin-actions">
+              <button class="btn-sm btn-danger" onclick="deleteEvent('${ev.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function addEvent() {
+      const title = document.getElementById('eventTitle').value.trim();
+      const event_type = document.getElementById('eventType').value;
+      const event_date = document.getElementById('eventDate').value;
+      const location = document.getElementById('eventLocation').value.trim();
+      const description = document.getElementById('eventDesc').value.trim();
+      if (!title || !event_date) { showMsg('Title and date are required.', 'error'); return; }
+      const show_in_portal = document.getElementById('eventPortal').checked;
+      const { error } = await sb.from('events').insert({ title, event_type, event_date, location, description, show_in_portal });
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg('Event added!', 'success');
+      document.getElementById('eventTitle').value = '';
+      document.getElementById('eventDate').value = '';
+      document.getElementById('eventLocation').value = '';
+      document.getElementById('eventDesc').value = '';
+      loadEvents();
+    }
+
+    async function togglePortal(id, checked) {
+      const { error } = await sb.from('events').update({ show_in_portal: checked }).eq('id', id);
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg(checked ? 'Visible in portal.' : 'Hidden from portal.', 'success');
+    }
+
+    async function deleteEvent(id) {
+      if (!confirm('Delete this event?')) return;
+      const { error } = await sb.from('events').delete().eq('id', id);
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg('Event deleted.', 'success');
+      loadEvents();
+    }
+
+    // ========== REFERRAL CODES (scoped to chapter) ==========
+    async function loadCodes() {
+      const [chRes, codeRes] = await Promise.all([
+        sb.from('chapters').select('*').eq('id', myChapterId).single(),
+        sb.from('referral_codes').select('*').eq('chapter_id', myChapterId).order('code')
+      ]);
+      myChapter = chRes.data;
+      const codes = codeRes.data || [];
+      document.getElementById('statCodes').textContent = codes.length;
+
+      const container = document.getElementById('chapterInfo');
+      const codesHTML = codes.length
+        ? codes.map(c => `
+            <div class="code-row">
+              <span class="code-badge">${c.code}</span>
+              <span class="code-meta">Used: ${c.times_used || 0}${c.max_uses ? '/' + c.max_uses : ''}</span>
+              <span class="code-meta">${c.note || ''}</span>
+              <span style="margin-left:auto;display:flex;gap:4px;align-items:center;">
+                <input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleCode('${c.id}', this.checked)" title="Active">
+              </span>
+            </div>
+          `).join('')
+        : '<p style="color:#9ca3af;font-size:13px;">No referral codes yet.</p>';
+
+      container.innerHTML = `
+        <h3>${myChapter ? myChapter.name : 'Your Chapter'}</h3>
+        <div class="chapter-info-meta">${myChapter ? [myChapter.city, myChapter.country].filter(Boolean).join(', ') : ''}</div>
+        <div style="margin-top:16px;">
+          <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px;">Referral Codes</h4>
+          ${codesHTML}
+          <div class="add-code-inline">
+            <input type="text" id="newCode" placeholder="CODE" maxlength="20">
+            <input type="number" id="newCodeMax" placeholder="Max" min="0" value="0" title="Max uses (0 = unlimited)">
+            <input type="text" id="newCodeNote" placeholder="Note" style="width:160px;">
+            <button class="btn-sm btn-add" onclick="addCode()">+ Add</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function addCode() {
+      const code = document.getElementById('newCode').value.trim().toUpperCase();
+      const max_uses = parseInt(document.getElementById('newCodeMax').value) || 0;
+      const note = document.getElementById('newCodeNote').value.trim();
+      if (!code) { showMsg('Code is required.', 'error'); return; }
+      const { error } = await sb.from('referral_codes').insert({ code, max_uses, note, chapter_id: myChapterId, active: true, times_used: 0 });
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg('Code added!', 'success');
+      loadCodes();
+    }
+
+    async function toggleCode(id, active) {
+      const { error } = await sb.from('referral_codes').update({ active }).eq('id', id);
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg(active ? 'Code activated.' : 'Code deactivated.', 'success');
+    }
+
+    // ========== INIT ==========
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+
+      // Get member data — must be Chapter Lead
+      const { data: member } = await sb.from('members').select('*').eq('id', session.user.id).single();
+
+      if (!member || member.member_title !== 'Chapter Lead') {
+        document.querySelector('.admin-page').innerHTML = '<div style="text-align:center;padding:80px 20px;"><h2 style="color:#991B1B;">Access Denied</h2><p>This page is for Chapter Leads only.</p><a href="dashboard.html">Back to Dashboard</a></div>';
+        return;
+      }
+
+      if (!member.chapter_id) {
+        document.querySelector('.admin-page').innerHTML = '<div style="text-align:center;padding:80px 20px;"><h2 style="color:#991B1B;">No Chapter Assigned</h2><p>You are a Chapter Lead but no chapter is assigned to your account. Contact a SaaS admin.</p><a href="dashboard.html">Back to Dashboard</a></div>';
+        return;
+      }
+
+      myChapterId = member.chapter_id;
+
+      // Get chapter name for header
+      const { data: ch } = await sb.from('chapters').select('name').eq('id', myChapterId).single();
+      document.getElementById('chapterLabel').textContent = ch ? ch.name : '';
+
+      loadMembers();
+      loadEvents();
+      loadCodes();
+
+      document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.href = 'login.html';
+      });
+    })();
+  </script>
+</body>
+</html>

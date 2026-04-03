@@ -331,6 +331,32 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .event-info h4 { font-size: 17px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
 .event-info p { font-size: 14px; color: var(--gray-600); margin-bottom: 8px; }
 .event-meta { font-size: 13px; color: var(--gray-400); }
+.event-card.has-desc { cursor: pointer; position: relative; }
+.expand-icon {
+  position: absolute;
+  top: 24px;
+  right: 20px;
+  width: 18px;
+  height: 18px;
+  color: var(--gray-400);
+  transition: transform 0.25s ease;
+}
+.event-card.expanded .expand-icon { transform: rotate(180deg); }
+.event-desc {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-top: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
+}
+.event-card.expanded .event-desc {
+  max-height: 300px;
+  opacity: 1;
+  margin-top: 10px;
+}
 
 /* --- FAQ --- */
 .faq-list { display: flex; flex-direction: column; gap: 8px; }

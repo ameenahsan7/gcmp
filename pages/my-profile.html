@@ -65,11 +65,14 @@
       background: rgba(255,255,255,0.04);
     }
     .vc-top { display: flex; align-items: center; gap: 10px; margin-bottom: auto; position: relative; z-index: 1; }
-    .vc-logo { width: 28px; height: 28px; border-radius: 50%; }
-    .vc-org { color: rgba(255,255,255,0.45); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
-    .vc-body { position: relative; z-index: 1; margin-top: 20px; }
-    .vc-name { color: #fff; font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+    .vc-logo { width: 36px; height: 36px; border-radius: 50%; }
+    .vc-org { color: rgba(255,255,255,0.5); font-size: 9px; font-weight: 600; letter-spacing: 1px; line-height: 1.3; }
+    .vc-body { position: relative; z-index: 1; margin-top: 14px; }
+    .vc-name { color: #fff; font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
     .vc-detail { color: rgba(255,255,255,0.55); font-size: 12px; margin-bottom: 2px; }
+    .vc-contact-row { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+    .vc-contact-row svg { width: 11px; height: 11px; color: rgba(255,255,255,0.4); flex-shrink: 0; }
+    .vc-contact-row span { color: rgba(255,255,255,0.5); font-size: 10.5px; }
     .vc-verified {
       position: absolute; top: 24px; right: 24px; z-index: 1;
     }
@@ -224,7 +227,7 @@
         <div class="visiting-card" onclick="window.open(document.getElementById('profileUrl').value, '_blank')">
           <div class="vc-top">
             <img src="../images/pgcmp_logo_inverted.jpeg" alt="GSMP" class="vc-logo">
-            <span class="vc-org">GSMP</span>
+            <span class="vc-org">Galen Society of<br>Medical Professionals</span>
           </div>
           <div class="vc-verified" title="Verified Member">
             <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#16A34A"/><path d="M8 12.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -233,6 +236,14 @@
             <div class="vc-name" id="cardName">—</div>
             <div class="vc-detail" id="cardSchool"></div>
             <div class="vc-detail" id="cardCountry"></div>
+            <div class="vc-contact-row" id="cardPhone" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span id="cardPhoneText"></span>
+            </div>
+            <div class="vc-contact-row" id="cardEmail" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span id="cardEmailText"></span>
+            </div>
           </div>
           <div class="vc-footer">
             <span class="vc-tap">Tap to view full card</span>
@@ -345,6 +356,14 @@
           document.getElementById('cardName').textContent = `${member.first_name} ${member.last_name}`;
           document.getElementById('cardSchool').textContent = member.school || '';
           document.getElementById('cardCountry').textContent = member.country || '';
+          if (member.phone) {
+            document.getElementById('cardPhoneText').textContent = member.phone;
+            document.getElementById('cardPhone').style.display = 'flex';
+          }
+          if (member.email) {
+            document.getElementById('cardEmailText').textContent = member.email;
+            document.getElementById('cardEmail').style.display = 'flex';
+          }
           document.getElementById('shareSection').style.display = 'block';
         }
 

@@ -300,20 +300,39 @@
       const card = document.querySelector('.visiting-card');
       if (!card) return;
       try {
-        // Hide footer buttons for clean screenshot
+        // Hide footer + force card dimensions for business card ratio
         const footer = card.querySelector('.vc-footer');
         if (footer) footer.style.display = 'none';
+
+        // Save original styles
+        const origWidth = card.style.width;
+        const origHeight = card.style.height;
+        const origMaxWidth = card.style.maxWidth;
+        const origBorderRadius = card.style.borderRadius;
+
+        // Force business card ratio (3.5 x 2 inches = 1050 x 600 at 300dpi concept)
+        card.style.width = '420px';
+        card.style.height = '240px';
+        card.style.maxWidth = 'none';
+        card.style.borderRadius = '14px';
+
         const canvas = await html2canvas(card, {
-          scale: 2,
-          backgroundColor: null,
+          scale: 4,
+          backgroundColor: '#1B2A4A',
           useCORS: true,
           logging: false
         });
-        // Restore footer
+
+        // Restore original styles
+        card.style.width = origWidth;
+        card.style.height = origHeight;
+        card.style.maxWidth = origMaxWidth;
+        card.style.borderRadius = origBorderRadius;
         if (footer) footer.style.display = '';
+
         const link = document.createElement('a');
         link.download = 'GSMP_Card_' + (_memberData.first_name || 'profile') + '.png';
-        link.href = canvas.toDataURL('image/png');
+        link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
       } catch(e) {
         console.error('Save failed:', e);

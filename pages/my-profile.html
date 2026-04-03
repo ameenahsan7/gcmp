@@ -107,7 +107,7 @@
     }
     .vc-verified svg { width: 26px; height: 26px; }
     .vc-badge {
-      position: absolute; bottom: 16px; right: 18px;
+      position: absolute; bottom: 42px; right: 18px;
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 6px;
@@ -370,10 +370,29 @@
         card.style.cssText = origStyles;
         if (footer) footer.style.display = '';
 
+        const fileName = 'GSMP_Card_' + (_memberData.first_name || 'profile') + '.png';
+
+        // Convert canvas to blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        // Try Web Share API (saves to gallery on mobile)
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: 'GSMP Card' });
+            return;
+          } catch(e) {
+            // User cancelled share — fall through to download
+            if (e.name === 'AbortError') return;
+          }
+        }
+
+        // Fallback: standard download
         const link = document.createElement('a');
-        link.download = 'GSMP_Card_' + (_memberData.first_name || 'profile') + '.png';
-        link.href = canvas.toDataURL('image/png', 1.0);
+        link.download = fileName;
+        link.href = URL.createObjectURL(blob);
         link.click();
+        URL.revokeObjectURL(link.href);
       } catch(e) {
         console.error('Save failed:', e);
         const footer = card.querySelector('.vc-footer');

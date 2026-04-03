@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — GSMP</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .profile-field label { font-size: 12px; color: #9ca3af; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+    .profile-field p { font-size: 15px; font-weight: 600; color: var(--navy); margin-top: 2px; }
+    .referral-box {
+      display: flex; align-items: center; gap: 12px;
+      background: #f3f4f6; border-radius: 10px; padding: 14px 18px; margin-top: 8px;
+    }
+    .referral-code {
+      font-family: monospace; font-size: 20px; font-weight: 700;
+      letter-spacing: 2px; color: var(--navy);
+    }
+    .share-actions { display: flex; gap: 8px; margin-left: auto; }
+    .share-btn {
+      width: 36px; height: 36px; border-radius: 8px; border: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.2s;
+    }
+    .share-btn:hover { opacity: 0.85; }
+    .share-btn svg { width: 18px; height: 18px; }
+    .btn-copy { background: var(--navy); color: #fff; }
+    .btn-wa { background: #25D366; color: #fff; }
+    .profile-card-preview {
+      background: linear-gradient(135deg, var(--navy) 0%, #2a3f6a 100%);
+      border-radius: 12px; padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      margin-top: 8px;
+    }
+    .profile-card-preview .left { color: rgba(255,255,255,0.7); font-size: 13px; }
+    .profile-card-preview .left strong { color: #fff; font-weight: 600; }
+    .preview-btn {
+      background: rgba(255,255,255,0.15); color: #fff; border: none;
+      padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: background 0.2s;
+    }
+    .preview-btn:hover { background: rgba(255,255,255,0.25); }
+    .preview-btn svg { width: 16px; height: 16px; }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #D1FAE5; color: #065F46; padding: 6px 14px;
+      border-radius: 20px; font-size: 13px; font-weight: 600;
+    }
+    .status-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; }
+  </style>
+</head>
+<body>
+  <div class="dash-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="dash-sidebar">
+      <a href="../index.html" class="nav-logo">
+        <img src="../images/logo.jpeg" alt="GSMP" class="logo-icon">
+        <span class="logo-text">GSMP</span>
+      </a>
+      <nav class="dash-nav">
+        <a href="dashboard.html">
+          <span class="dash-nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </span>
+          Dashboard
+        </a>
+        <a href="my-profile.html" class="active">
+          <span class="dash-nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          My Profile
+        </a>
+        <a href="#" id="logoutBtn" style="margin-top: auto; color: rgba(255,255,255,0.4);">
+          <span class="dash-nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </span>
+          Log Out
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="dash-main">
+      <div class="dash-header">
+        <h1>My Profile</h1>
+        <div style="margin-top:8px;">
+          <span class="status-pill"><span class="dot"></span> Active Member</span>
+        </div>
+      </div>
+
+      <!-- PROFILE INFO -->
+      <div class="dash-section">
+        <div class="profile-grid">
+          <div class="profile-field">
+            <label>Name</label>
+            <p id="profileName">Loading...</p>
+          </div>
+          <div class="profile-field">
+            <label>Email</label>
+            <p id="profileEmail">Loading...</p>
+          </div>
+          <div class="profile-field">
+            <label>Institution</label>
+            <p id="profileSchool">Loading...</p>
+          </div>
+          <div class="profile-field">
+            <label>Role / Year</label>
+            <p id="profileYear">Loading...</p>
+          </div>
+          <div class="profile-field">
+            <label>Country</label>
+            <p id="profileCountry">Loading...</p>
+          </div>
+          <div class="profile-field">
+            <label>Chapter</label>
+            <p id="profileChapter">Loading...</p>
+          </div>
+          <div class="profile-field" style="grid-column:1/-1;">
+            <label>Interests</label>
+            <p id="profileInterests">Loading...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- REFERRAL CODE -->
+      <div class="dash-section">
+        <h2>Your Referral Code</h2>
+        <p style="color: #9ca3af; font-size: 13px; margin-bottom: 4px;">Invite others to join GSMP through your chapter.</p>
+        <div class="referral-box">
+          <span class="referral-code" id="myReferralCode">—</span>
+          <div class="share-actions">
+            <button class="share-btn btn-copy" title="Copy code" onclick="copyCode()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <button class="share-btn btn-wa" title="Share via WhatsApp" onclick="shareWhatsApp()">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIGITAL PROFILE CARD -->
+      <div class="dash-section" id="shareSection" style="display:none;">
+        <h2>Digital Profile Card</h2>
+        <p style="color: #9ca3af; font-size: 13px; margin-bottom: 4px;">Your shareable GSMP identity — with contact info and a save-to-phone button.</p>
+        <div class="profile-card-preview">
+          <div class="left">
+            <strong id="cardName">—</strong><br>
+            Verified GSMP Member
+          </div>
+          <button class="preview-btn" onclick="window.open(document.getElementById('profileUrl').value, '_blank')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View Card
+          </button>
+        </div>
+        <input type="hidden" id="profileUrl" value="">
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script>
+    let _memberData = {};
+
+    function copyCode() {
+      const code = document.getElementById('myReferralCode').textContent;
+      navigator.clipboard.writeText(code);
+      const btn = event.currentTarget;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>';
+      setTimeout(() => {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      }, 1500);
+    }
+
+    function shareWhatsApp() {
+      const code = document.getElementById('myReferralCode').textContent;
+      const name = _memberData.first_name || '';
+      const profileUrl = document.getElementById('profileUrl')?.value || '';
+      const msg = `Hey! I'm a member of GSMP (Galen Society of Medical Professionals) — a global network for medical professionals. I'd love for you to join.\n\nUse my referral code: *${code}*\nSign up here: https://ameenahsan7.github.io/gcmp/pages/join.html\n\nCheck out my profile: ${profileUrl}`;
+      window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    }
+
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+
+      const { data: member, error } = await sb
+        .from('members')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (member) {
+        _memberData = member;
+        document.getElementById('profileName').textContent = `${member.first_name} ${member.last_name}`;
+        document.getElementById('profileEmail').textContent = member.email;
+        document.getElementById('profileSchool').textContent = member.school || '—';
+        document.getElementById('profileYear').textContent = member.year || '—';
+        document.getElementById('profileCountry').textContent = member.country || '—';
+        document.getElementById('profileInterests').textContent = member.interests || '—';
+        document.getElementById('myReferralCode').textContent = member.referral_code || '—';
+
+        if (member.referral_code) {
+          const profileUrl = window.location.origin + '/gcmp/pages/profile.html?code=' + member.referral_code;
+          document.getElementById('profileUrl').value = profileUrl;
+          document.getElementById('cardName').textContent = `${member.first_name} ${member.last_name}`;
+          document.getElementById('shareSection').style.display = 'block';
+        }
+
+        if (member.chapter_id) {
+          const { data: chapter } = await sb.from('chapters').select('name').eq('id', member.chapter_id).single();
+          document.getElementById('profileChapter').textContent = chapter ? chapter.name : '—';
+        } else {
+          document.getElementById('profileChapter').textContent = 'Not assigned yet';
+        }
+      } else {
+        const meta = session.user.user_metadata;
+        document.getElementById('profileName').textContent = `${meta.first_name || ''} ${meta.last_name || ''}`;
+        document.getElementById('profileEmail').textContent = session.user.email;
+        ['profileSchool','profileYear','profileCountry','profileChapter','profileInterests'].forEach(id => {
+          document.getElementById(id).textContent = '—';
+        });
+      }
+
+      document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.href = 'login.html';
+      });
+    })();
+  </script>
+</body>
+</html>

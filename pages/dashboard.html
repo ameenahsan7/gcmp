@@ -23,6 +23,12 @@
           </span>
           Dashboard
         </a>
+        <a href="my-profile.html">
+          <span class="dash-nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          My Profile
+        </a>
         <a href="#" id="logoutBtn" style="margin-top: auto; color: rgba(255,255,255,0.4);">
           <span class="dash-nav-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -39,73 +45,6 @@
         <p>Here's what's happening in your GSMP network.</p>
       </div>
 
-      <!-- STATS -->
-      <div class="dash-grid">
-        <div class="dash-card">
-          <h3>Member Status</h3>
-          <div class="dash-value">Active</div>
-          <div class="dash-label">Member</div>
-        </div>
-      </div>
-
-      <!-- PROFILE -->
-      <div class="dash-section">
-        <h2>Your Profile</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <div>
-            <p style="color: var(--gray-400); font-size: 13px; margin-bottom: 2px;">Name</p>
-            <p style="font-weight: 600;" id="profileName">Loading...</p>
-          </div>
-          <div>
-            <p style="color: var(--gray-400); font-size: 13px; margin-bottom: 2px;">Email</p>
-            <p style="font-weight: 600;" id="profileEmail">Loading...</p>
-          </div>
-          <div>
-            <p style="color: var(--gray-400); font-size: 13px; margin-bottom: 2px;">Institution</p>
-            <p style="font-weight: 600;" id="profileSchool">Loading...</p>
-          </div>
-          <div>
-            <p style="color: var(--gray-400); font-size: 13px; margin-bottom: 2px;">Role / Year</p>
-            <p style="font-weight: 600;" id="profileYear">Loading...</p>
-          </div>
-          <div>
-            <p style="color: var(--gray-400); font-size: 13px; margin-bottom: 2px;">Country</p>
-            <p style="font-weight: 600;" id="profileCountry">Loading...</p>
-          </div>
-          <div>
-            <p style="color: var(--gray-400); font-size: 13px; margin-bottom: 2px;">Chapter</p>
-            <p style="font-weight: 600;" id="profileChapter">Loading...</p>
-          </div>
-          <div>
-            <p style="color: var(--gray-400); font-size: 13px; margin-bottom: 2px;">Interests</p>
-            <p style="font-weight: 600;" id="profileInterests">Loading...</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- SHARE PROFILE -->
-      <div class="dash-section" id="shareSection" style="display:none;">
-        <h2>Your Digital Profile</h2>
-        <p style="color: var(--gray-400); font-size: 14px; margin-bottom: 16px;">Share your verified GSMP profile card with colleagues and connections.</p>
-        <div style="display:flex;gap:10px;">
-          <button id="previewProfileBtn" onclick="window.open(document.getElementById('profileUrl').value, '_blank')" style="background:var(--navy);color:#fff;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            Share Profile
-          </button>
-        </div>
-        <input type="hidden" id="profileUrl" value="">
-      </div>
-
-      <!-- REFERRAL CODE -->
-      <div class="dash-section">
-        <h2>Your Referral Code</h2>
-        <p style="color: var(--gray-400); font-size: 14px; margin-bottom: 12px;">Share this code to invite others to GSMP.</p>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span id="myReferralCode" style="font-family:monospace;font-size:20px;font-weight:700;letter-spacing:2px;color:var(--navy);background:#f3f4f6;padding:10px 20px;border-radius:8px;">—</span>
-          <button onclick="navigator.clipboard.writeText(document.getElementById('myReferralCode').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500);" class="btn btn-ghost" style="font-size:13px;padding:8px 16px;">Copy</button>
-        </div>
-      </div>
-
       <!-- UPCOMING EVENTS -->
       <div class="dash-section">
         <h2>Upcoming Events</h2>
@@ -120,57 +59,21 @@
   <script src="../js/supabase-config.js"></script>
   <script>
     (async () => {
-      // Check if user is logged in
       const { data: { session } } = await sb.auth.getSession();
-      if (!session) {
-        window.location.href = 'login.html';
-        return;
-      }
+      if (!session) { window.location.href = 'login.html'; return; }
 
-      const userId = session.user.id;
-
-      // Fetch member profile from database
-      const { data: member, error } = await sb
+      // Get first name for greeting
+      const { data: member } = await sb
         .from('members')
-        .select('*')
-        .eq('id', userId)
+        .select('first_name')
+        .eq('id', session.user.id)
         .single();
 
       if (member) {
         document.getElementById('dashGreeting').textContent = `Welcome, ${member.first_name}`;
-        document.getElementById('profileName').textContent = `${member.first_name} ${member.last_name}`;
-        document.getElementById('profileEmail').textContent = member.email;
-        document.getElementById('profileSchool').textContent = member.school || '—';
-        document.getElementById('profileYear').textContent = member.year || '—';
-        document.getElementById('profileCountry').textContent = member.country || '—';
-        document.getElementById('profileInterests').textContent = member.interests || '—';
-        document.getElementById('myReferralCode').textContent = member.referral_code || '—';
-
-        // Set up profile sharing
-        if (member.referral_code) {
-          const profileUrl = window.location.origin + '/gcmp/pages/profile.html?code=' + member.referral_code;
-          document.getElementById('profileUrl').value = profileUrl;
-          document.getElementById('shareSection').style.display = 'block';
-        }
-
-        // Fetch chapter name if assigned
-        if (member.chapter_id) {
-          const { data: chapter } = await sb.from('chapters').select('name').eq('id', member.chapter_id).single();
-          document.getElementById('profileChapter').textContent = chapter ? chapter.name : '—';
-        } else {
-          document.getElementById('profileChapter').textContent = 'Not assigned yet';
-        }
       } else {
-        // Fallback to auth metadata
         const meta = session.user.user_metadata;
         document.getElementById('dashGreeting').textContent = `Welcome, ${meta.first_name || 'Member'}`;
-        document.getElementById('profileName').textContent = `${meta.first_name || ''} ${meta.last_name || ''}`;
-        document.getElementById('profileEmail').textContent = session.user.email;
-        document.getElementById('profileSchool').textContent = '—';
-        document.getElementById('profileYear').textContent = '—';
-        document.getElementById('profileCountry').textContent = '—';
-        document.getElementById('profileChapter').textContent = '—';
-        document.getElementById('profileInterests').textContent = '—';
       }
 
       // Fetch upcoming events (only those marked show_in_portal)
@@ -207,7 +110,7 @@
         eventsContainer.innerHTML = '<p style="color: var(--gray-400);">No upcoming events yet.</p>';
       }
 
-      // Logout handler
+      // Logout
       document.getElementById('logoutBtn').addEventListener('click', async (e) => {
         e.preventDefault();
         await sb.auth.signOut();

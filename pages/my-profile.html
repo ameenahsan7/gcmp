@@ -107,7 +107,7 @@
     }
     .vc-verified svg { width: 26px; height: 26px; }
     .vc-badge {
-      position: absolute; bottom: 42px; right: 18px;
+      display: inline-block;
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 6px;
@@ -116,6 +116,7 @@
       font-family: 'Inter', sans-serif;
       font-size: 9px; font-weight: 600;
       letter-spacing: 0.8px; text-transform: uppercase;
+      margin-top: 10px;
     }
     .vc-footer {
       position: absolute; bottom: 0; left: 0; right: 0;
@@ -283,8 +284,7 @@
             </div>
             <div class="vc-name" id="cardName">—</div>
             <div class="vc-title-tag" id="cardTitleTag">Member</div>
-            <!-- Member badge -->
-            <div class="vc-badge" id="cardBadge">Member</div>
+            <div><span class="vc-badge" id="cardBadge">Member</span></div>
             <div class="vc-footer">
               <span class="vc-tap">Tap to view</span>
               <div class="vc-share-row">

@@ -77,6 +77,20 @@
     }
     .bcard-logo img { width: 20px; height: 20px; border-radius: 50%; opacity: 0.4; }
     .bcard-logo span { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; color: rgba(255,255,255,0.35); text-transform: uppercase; }
+    .bcard-banner-tag {
+      position: absolute;
+      top: 40px;
+      left: 16px;
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--gold);
+      background: rgba(196,154,60,0.15);
+      border: 1px solid rgba(196,154,60,0.25);
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
     /* Initials avatar */
     .bcard-avatar {
       position: absolute;
@@ -111,7 +125,12 @@
       color: var(--navy);
       margin-bottom: 3px;
       line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
+    .bcard-name svg { width: 18px; height: 18px; flex-shrink: 0; }
     .bcard-credentials {
       font-size: 12.5px;
       color: var(--gold);
@@ -124,26 +143,7 @@
       color: #8b92a0;
       margin-bottom: 10px;
     }
-    /* Member tag + verified */
-    .bcard-badges {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin-bottom: 18px;
-    }
-    .bcard-tag {
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.4px;
-      color: var(--gold);
-      background: rgba(196,154,60,0.08);
-      border: 1px solid rgba(196,154,60,0.18);
-      padding: 3px 10px;
-      border-radius: 4px;
-    }
-    .bcard-verified svg { width: 18px; height: 18px; }
+    /* (badges moved to banner + inline) */
 
     /* ── Divider ── */
     .bcard-divider {
@@ -154,14 +154,15 @@
 
     /* ── Contact rows ── */
     .bcard-contact {
-      text-align: left;
+      text-align: center;
       padding: 0 8px;
       margin-bottom: 18px;
     }
     .bcard-row {
       display: flex;
       align-items: center;
-      gap: 14px;
+      justify-content: center;
+      gap: 10px;
       padding: 9px 0;
     }
     .bcard-row + .bcard-row { border-top: 1px solid #f5f6f8; }
@@ -386,18 +387,15 @@
           <button class="bcard-share" onclick="shareProfile('${displayName.replace(/'/g, "\\'")}')" title="Share">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           </button>
+          <span class="bcard-banner-tag">${memberTitle}</span>
           <div class="bcard-avatar">${initials}</div>
         </div>
         <div class="bcard-body">
-          <h1 class="bcard-name">${displayName}</h1>
+          <h1 class="bcard-name">${displayName}
+            <svg viewBox="0 0 24 24" title="Verified GSMP Member"><circle cx="12" cy="12" r="10" fill="#16A34A"/><path d="M8 12.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </h1>
           ${credentialLine ? `<p class="bcard-credentials">${credentialLine}</p>` : ''}
           <p class="bcard-location">${locationLine}</p>
-          <div class="bcard-badges">
-            <span class="bcard-tag">${memberTitle}</span>
-            <span class="bcard-verified" title="Verified GSMP Member">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#16A34A"/><path d="M8 12.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-          </div>
           <div class="bcard-divider"></div>
 
           <div class="bcard-contact">

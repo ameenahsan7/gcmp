@@ -300,19 +300,38 @@
       const card = document.querySelector('.visiting-card');
       if (!card) return;
       try {
+        // Hide footer buttons for clean screenshot
+        const footer = card.querySelector('.vc-footer');
+        if (footer) footer.style.display = 'none';
         const canvas = await html2canvas(card, {
           scale: 2,
           backgroundColor: null,
           useCORS: true,
           logging: false
         });
+        // Restore footer
+        if (footer) footer.style.display = '';
         const link = document.createElement('a');
         link.download = 'GSMP_Card_' + (_memberData.first_name || 'profile') + '.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
       } catch(e) {
         console.error('Save failed:', e);
+        const footer = card.querySelector('.vc-footer');
+        if (footer) footer.style.display = '';
       }
+    }
+
+    function getPrefix(year) {
+      if (!year) return '';
+      const y = year.toLowerCase();
+      if (y.includes('physician') || y.includes('resident') || y.includes('intern')) return 'Dr. ';
+      return '';
+    }
+
+    function toTitleCase(str) {
+      if (!str) return '';
+      return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
     }
 
     function shareWhatsApp() {
@@ -352,7 +371,8 @@
         if (member.referral_code) {
           const profileUrl = window.location.origin + '/gcmp/pages/profile.html?code=' + member.referral_code;
           document.getElementById('profileUrl').value = profileUrl;
-          document.getElementById('cardName').textContent = `${member.first_name} ${member.last_name}`;
+          const prefix = getPrefix(member.year);
+          document.getElementById('cardName').textContent = `${prefix}${toTitleCase(member.first_name)} ${toTitleCase(member.last_name)}`;
           document.getElementById('cardSchool').textContent = member.school || '';
           document.getElementById('cardCountry').textContent = member.country || '';
           if (member.phone) {

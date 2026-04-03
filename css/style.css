@@ -598,7 +598,9 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   .section-cta h2 { font-size: 28px; }
   .dash-layout { grid-template-columns: 1fr; }
   .dash-sidebar { display: none; }
-  .dash-main { padding: 24px 16px; }
+  .dash-main { padding: 24px 16px; padding-bottom: 80px; }
+  .mobile-topbar { display: flex !important; }
+  .mobile-bottomnav { display: flex !important; }
   .dash-grid { grid-template-columns: 1fr; }
   .chapters-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; }

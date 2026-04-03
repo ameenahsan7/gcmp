@@ -32,6 +32,7 @@
       padding: 40px 24px 52px;
       text-align: center;
       position: relative;
+      overflow: visible;
     }
     .profile-initials {
       position: absolute;
@@ -163,25 +164,36 @@
     .save-contact-btn:hover { opacity: 0.9; }
     .save-contact-btn svg { width: 18px; height: 18px; }
 
-    .share-btn {
+    .share-icon-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 14px;
-      background: #fff;
-      color: var(--navy);
-      border: 1.5px solid var(--navy);
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 8px;
+      transition: background 0.2s;
+      z-index: 3;
     }
-    .share-btn:hover { background: var(--navy); color: #fff; }
-    .share-btn svg { width: 18px; height: 18px; }
+    .share-icon-btn:hover { background: rgba(255,255,255,0.3); }
+    .share-icon-btn svg { width: 16px; height: 16px; color: #fff; }
+    .member-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--gold);
+      background: rgba(196,154,60,0.1);
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
     .share-toast {
       position: fixed;
       bottom: 30px;
@@ -307,7 +319,7 @@
 
       const { data: member, error } = await sb
         .from('members')
-        .select('first_name, last_name, school, year, country, city, email, phone, chapter_id, degree, field, specialty')
+        .select('first_name, last_name, school, year, country, city, email, phone, chapter_id, degree, field, specialty, member_title')
         .eq('referral_code', code.toUpperCase())
         .single();
 
@@ -345,14 +357,20 @@
       // Store data for vCard download
       window._vcardData = { firstName, lastName, prefix, cleanPhone, email: member.email || '', school, credentialLine };
 
+      const memberTitle = member.member_title || 'Member';
+
       card.innerHTML = `
         <div class="profile-banner">
+          <button class="share-icon-btn" onclick="shareProfile('${displayName}')" title="Share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
           <div class="profile-initials">${initials}</div>
         </div>
         <div class="profile-body">
           <h1 class="profile-name">${displayName}</h1>
           ${credentialLine ? `<p style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:2px;">${credentialLine}</p>` : ''}
-          <p class="profile-subtitle">${school}${school && country ? ' · ' : ''}${country}</p>
+          <p class="profile-subtitle">${country}</p>
+          <span class="member-tag">${memberTitle}</span>
           <div class="verified-tick" title="Verified GSMP Member">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="10" fill="#16A34A"/>
@@ -406,10 +424,6 @@
             Save Contact
           </button>
 
-          <button class="share-btn" onclick="shareProfile('${displayName}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            Share This Card
-          </button>
         </div>
         <div class="share-toast" id="shareToast">Link copied!</div>
         <div class="profile-footer">

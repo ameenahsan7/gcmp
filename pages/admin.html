@@ -520,6 +520,7 @@
             <td style="font-size:12px;color:#6b7280;">${creator}</td>
             <td><input type="checkbox" ${portalChecked} onchange="togglePortal('${ev.id}', this.checked)" title="Show in member portal"></td>
             <td class="admin-actions">
+              <button class="btn-sm btn-csv" onclick="exportEventReport('${ev.id}','${ev.title.replace(/'/g,"\\'")}')" title="Download attendee report">&#x2B73;</button>
               <button class="btn-sm btn-edit" onclick="editEvent('${ev.id}','${ev.title.replace(/'/g,"\\'")}','${ev.event_type || ''}','${ev.event_date || ''}','${(ev.location||'').replace(/'/g,"\\'")}','${(ev.description||'').replace(/'/g,"\\'")}',${ev.show_in_portal !== false})">Edit</button>
               <button class="btn-sm btn-danger" onclick="deleteEvent('${ev.id}')">Delete</button>
             </td>
@@ -652,13 +653,53 @@
     async function exportEventsCSV() {
       const { data } = await sb.from('events').select('*').order('event_date', { ascending: true });
       if (!data || !data.length) { showMsg('No events to export.', 'error'); return; }
-      const rows = [['Title', 'Type', 'Date', 'Location', 'Description', 'Portal']];
+      // Fetch all RSVPs with member details
+      const eventIds = data.map(e => e.id);
+      const { data: rsvps } = await sb.from('event_rsvps').select('event_id, member_id').in('event_id', eventIds);
+      const rsvpCounts = {};
+      if (rsvps) rsvps.forEach(r => { rsvpCounts[r.event_id] = (rsvpCounts[r.event_id] || 0) + 1; });
+      const rows = [['Title', 'Type', 'Date', 'Location', 'Description', 'Portal', 'RSVPs', 'Created By']];
       data.forEach(ev => rows.push([
         ev.title, ev.event_type || '', ev.event_date || '', ev.location || '',
-        ev.description || '', ev.show_in_portal !== false ? 'Yes' : 'No'
+        ev.description || '', ev.show_in_portal !== false ? 'Yes' : 'No',
+        rsvpCounts[ev.id] || 0, ev.created_by || ''
       ]));
       downloadCSV(rows, 'gsmp_events.csv');
       showMsg('Events exported!', 'success');
+    }
+
+    async function exportEventReport(eventId, eventTitle) {
+      // Fetch event details
+      const { data: ev } = await sb.from('events').select('*').eq('id', eventId).single();
+      if (!ev) { showMsg('Event not found.', 'error'); return; }
+      // Fetch RSVPs for this event
+      const { data: rsvps } = await sb.from('event_rsvps').select('member_id, created_at').eq('event_id', eventId);
+      if (!rsvps || !rsvps.length) { showMsg('No RSVPs for this event yet.', 'error'); return; }
+      // Fetch member details
+      const memberIds = rsvps.map(r => r.member_id);
+      const { data: members } = await sb.from('members').select('id, first_name, last_name, email, phone, school, country, city, degree, specialty, member_title, chapter_id').in('id', memberIds);
+      const memberMap = {};
+      if (members) members.forEach(m => { memberMap[m.id] = m; });
+      // Build CSV
+      const rows = [
+        ['Event Report: ' + ev.title],
+        ['Type: ' + (ev.event_type || ''), 'Date: ' + (ev.event_date || ''), 'Location: ' + (ev.location || '')],
+        ['Total RSVPs: ' + rsvps.length, 'Created By: ' + (ev.created_by || '')],
+        [],
+        ['Name', 'Email', 'Phone', 'Institution', 'Country', 'City', 'Degree', 'Specialty', 'Title', 'RSVP Date']
+      ];
+      rsvps.forEach(r => {
+        const m = memberMap[r.member_id] || {};
+        rows.push([
+          ((m.first_name || '') + ' ' + (m.last_name || '')).trim() || 'Unknown',
+          m.email || '', m.phone || '', m.school || '', m.country || '', m.city || '',
+          m.degree || '', m.specialty || '', m.member_title || 'Member',
+          r.created_at ? new Date(r.created_at).toLocaleDateString() : ''
+        ]);
+      });
+      const safeName = eventTitle.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
+      downloadCSV(rows, 'event_report_' + safeName + '.csv');
+      showMsg('Event report downloaded!', 'success');
     }
 
     async function exportMembersCSV() {

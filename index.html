@@ -9,7 +9,7 @@
   <meta property="og:title" content="GSMP — Galen Society of Medical Professionals">
   <meta property="og:description" content="Galen Society of Medical Professionals — A curated global network for medical professionals.">
   <meta property="og:type" content="website">
-  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/style.css?v=7">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 </head>
@@ -390,6 +390,12 @@
       } else {
         spotGrid.innerHTML = '<p class="article-empty">No community updates yet. Check back soon!</p>';
       }
+
+      // Tap-to-expand on mobile
+      document.querySelectorAll('.article-featured, .article-card, .spotlight-card').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => card.classList.toggle('expanded'));
+      });
     })();
 
     // Load events on landing page (all events)

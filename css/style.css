@@ -879,6 +879,41 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .page-header h1 { font-family: var(--font-serif); font-size: 36px; margin-bottom: 12px; }
 .page-header p { color: rgba(255,255,255,0.7); font-size: 17px; }
 
+/* ── Tap-to-expand (articles on mobile) ── */
+.article-featured.expanded,
+.spotlight-card.expanded {
+  height: auto !important;
+  max-height: none !important;
+}
+.article-featured.expanded .article-body p,
+.article-card.expanded .article-body p,
+.spotlight-card.expanded .spotlight-body p {
+  -webkit-line-clamp: unset !important;
+  display: block !important;
+  overflow: visible !important;
+}
+.article-featured .article-body p::after,
+.article-card .article-body p::after,
+.spotlight-card .spotlight-body p::after {
+  content: '  ▾ Tap to read more';
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--burgundy);
+  display: none;
+}
+.article-featured.expanded .article-body p::after,
+.article-card.expanded .article-body p::after,
+.spotlight-card.expanded .spotlight-body p::after {
+  content: '  ▴ Tap to collapse';
+}
+@media (max-width: 768px) {
+  .article-featured .article-body p::after,
+  .article-card .article-body p::after,
+  .spotlight-card .spotlight-body p::after {
+    display: inline;
+  }
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */
@@ -1045,17 +1080,17 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   .article-featured .article-img { height: 220px; }
   .article-featured .article-body { padding: 24px 20px; }
   .article-body h3 { font-size: 20px; }
-  .article-body p { font-size: 14px; -webkit-line-clamp: unset; display: block; overflow: visible; }
+  .article-body p { font-size: 14px; -webkit-line-clamp: 4; }
   .articles-secondary { grid-template-columns: 1fr; }
   .article-card { grid-template-columns: 1fr; }
   .article-card .article-img { height: 180px; min-height: 180px; }
-  .article-card .article-body p { -webkit-line-clamp: unset; display: block; overflow: visible; }
+  .article-card .article-body p { -webkit-line-clamp: 3; }
   .spotlight-card { grid-template-columns: 1fr; height: auto; }
   .spotlight-card:nth-child(even) { direction: ltr; }
   .spotlight-img { height: 200px; }
   .spotlight-body { padding: 20px; }
   .spotlight-body h4 { font-size: 18px; }
-  .spotlight-body p { font-size: 13px; -webkit-line-clamp: unset; display: block; overflow: visible; }
+  .spotlight-body p { font-size: 13px; -webkit-line-clamp: 3; }
 }
 
 /* ── Extra small phones ── */

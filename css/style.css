@@ -415,7 +415,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 /* --- ARTICLES --- */
 .articles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 28px;
 }
 .article-card {
@@ -495,7 +495,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 /* Spotlight / Community cards (smaller, horizontal) */
 .spotlight-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 24px;
 }
 .spotlight-card {

@@ -429,8 +429,10 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   z-index: 2;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
   min-height: 32px;
+  min-width: 80px;
 }
 .rsvp-btn:hover { background: var(--navy); color: #fff; }
 .rsvp-btn.rsvpd {

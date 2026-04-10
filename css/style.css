@@ -560,7 +560,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   overflow: hidden;
   border: 1px solid var(--gray-200);
   transition: all var(--transition);
-  height: 300px;
+  height: 600px;
 }
 .spotlight-card:nth-child(even) { direction: rtl; }
 .spotlight-card:nth-child(even) > * { direction: ltr; }
@@ -598,7 +598,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   color: var(--gray-600);
   line-height: 1.7;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 10;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -926,7 +926,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   .article-featured .article-body { padding: 28px 30px; }
   .article-body h3 { font-size: 22px; }
   .article-body p { -webkit-line-clamp: 5; }
-  .spotlight-card { height: 260px; }
+  .spotlight-card { height: 500px; }
   .spotlight-body { padding: 24px 28px; }
   .spotlight-body h4 { font-size: 19px; }
 }

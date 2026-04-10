@@ -391,11 +391,13 @@
         spotGrid.innerHTML = '<p class="article-empty">No community updates yet. Check back soon!</p>';
       }
 
-      // Tap-to-expand on mobile
-      document.querySelectorAll('.article-featured, .article-card, .spotlight-card').forEach(card => {
-        card.style.cursor = 'pointer';
-        card.addEventListener('click', () => card.classList.toggle('expanded'));
-      });
+      // Tap-to-expand on mobile only
+      if (window.innerWidth <= 768) {
+        document.querySelectorAll('.article-featured, .article-card, .spotlight-card').forEach(card => {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', () => card.classList.toggle('expanded'));
+        });
+      }
     })();
 
     // Load events on landing page (all events)

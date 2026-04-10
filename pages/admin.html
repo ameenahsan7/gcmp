@@ -95,6 +95,10 @@
       .edit-inline input, .edit-inline select, .edit-inline textarea { padding: 10px; font-size: 16px; }
       .edit-actions { flex-wrap: wrap; }
       .admin-back { font-size: 13px; min-height: 44px; display: inline-flex; align-items: center; }
+      /* Articles list cards on mobile */
+      #articlesListContainer > div { flex-direction: column !important; }
+      #articlesListContainer > div img { width: 100% !important; height: 160px !important; border-radius: 8px !important; }
+      #articlesListContainer .admin-actions { flex-direction: row !important; width: 100% !important; justify-content: flex-start; }
     }
     @media (max-width: 380px) {
       .admin-page { padding: 12px 8px; }

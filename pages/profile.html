@@ -267,20 +267,21 @@
 
     @media (max-width: 480px) {
       body { padding: 12px; }
-      .bcard { border-radius: 14px; }
+      .bcard { border-radius: 14px; max-width: 100%; }
       .bcard-top { padding: 22px 16px 40px; }
       .bcard-body { padding: 36px 16px 16px; }
       .bcard-name { font-size: 20px; }
       .bcard-credentials { font-size: 11.5px; }
       .bcard-location { font-size: 12px; }
       .bcard-row span { font-size: 12.5px; }
+      .bcard-row { padding: 10px 0; }
       .bcard-actions { gap: 4px; }
       .bcard-act { padding: 10px 4px; font-size: 9px; min-height: 44px; }
       .bcard-act svg { width: 16px; height: 16px; }
-      .bcard-save { font-size: 12px; padding: 11px; min-height: 44px; }
+      .bcard-save { font-size: 12px; padding: 12px; min-height: 44px; }
       .bcard-share { width: 44px; height: 44px; }
       .bcard-share svg { width: 18px; height: 18px; }
-      .bcard-footer { padding: 10px 16px 14px; }
+      .bcard-footer { padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px)); }
       .bcard-footer a { font-size: 9px; }
       .bcard-avatar { width: 52px; height: 52px; font-size: 18px; bottom: -26px; }
     }

@@ -215,7 +215,7 @@
 
   <!-- EVENTS -->
   <section class="section" id="events">
-    <div class="container">
+    <div class="container-wide">
       <div class="section-header">
         <p class="section-tag">Upcoming</p>
         <h2>Events</h2>
@@ -410,27 +410,27 @@
         .limit(6);
 
       const grid = document.getElementById('homeEventsGrid');
+      const defaultImages = {
+        'workshop': 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80',
+        'conference': 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80',
+        'social': 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&q=80',
+        'seminar': 'https://images.unsplash.com/photo-1587825140708-dfaf18c4f3ab?w=800&q=80',
+        'default': 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=800&q=80'
+      };
       if (events && events.length > 0) {
         grid.innerHTML = events.map(ev => {
           const d = new Date(ev.event_date);
-          const month = d.toLocaleString('en', { month: 'short' }).toUpperCase();
+          const month = d.toLocaleString('en', { month: 'short' });
           const day = d.getDate();
-          const time = d.toLocaleTimeString('en', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
-          const hasDesc = ev.description && ev.description.trim();
-          const descText = hasDesc ? (ev.description.length > 280 ? ev.description.substring(0, 280) + '...' : ev.description) : '';
+          const img = ev.image_url || defaultImages[(ev.event_type || '').toLowerCase()] || defaultImages['default'];
           return `
-            <div class="event-card${hasDesc ? ' has-desc' : ''}" ${hasDesc ? 'onclick="this.classList.toggle(\'expanded\')"' : ''}>
-              <div class="event-date">
-                <span class="event-month">${month}</span>
-                <span class="event-day">${day}</span>
-              </div>
-              <div class="event-info">
-                <span class="event-type">${ev.event_type}</span>
+            <div class="event-card">
+              <img class="event-card-img" src="${img}" alt="${ev.title}" loading="lazy">
+              <div class="event-card-overlay">
+                <div class="event-card-type">${ev.event_type || 'Event'}</div>
                 <h4>${ev.title}</h4>
-                <span class="event-meta">${ev.location || ''} &middot; ${time}</span>
-                ${hasDesc ? `<div class="event-desc">${descText}</div>` : ''}
+                <div class="event-card-meta">${ev.location || ''} &middot; ${month} ${day}</div>
               </div>
-              ${hasDesc ? '<div class="expand-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>' : ''}
             </div>
           `;
         }).join('');

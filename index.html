@@ -278,7 +278,7 @@
 
   <!-- CTA FOOTER -->
   <section class="section section-cta" style="position:relative;overflow:hidden;">
-    <div style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1551076805-e1869033e561?w=1400&q=80') center/cover no-repeat;opacity:0.12;"></div>
+    <div style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1551076805-e1869033e561?w=1400&q=80') center/cover no-repeat;opacity:0.25;"></div>
     <div class="container" style="position:relative;">
       <h2>Built on trust.<br>Grown through purpose.</h2>
       <p>GSMP membership is curated and referral-based. If you've been invited, we're glad to have you.</p>
@@ -337,10 +337,13 @@
       const newsGrid = document.getElementById('newsGrid');
       if (news.length > 0) {
         const allNews = news.slice(0, 5);
+        // Adapt grid: single article = full-width hero, 2 articles = 2 cols, 3+ = standard 3-col
+        if (allNews.length === 1) newsGrid.style.gridTemplateColumns = '1fr';
+        else if (allNews.length === 2) newsGrid.style.gridTemplateColumns = '1fr 1fr';
         newsGrid.innerHTML = allNews.map((a, i) => {
           const date = new Date(a.created_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' });
           const excerpt = a.excerpt || (a.content ? a.content.substring(0, 200) : '');
-          const cls = i === 0 ? 'article-featured' : 'article-card';
+          const cls = (i === 0 && allNews.length > 2) ? 'article-featured' : (allNews.length === 1 ? 'article-featured' : 'article-card');
           return `
             <div class="${cls}">
               ${a.image_url ? `<div class="article-img"><img src="${a.image_url}" alt="${a.title}" loading="lazy"></div>` : ''}

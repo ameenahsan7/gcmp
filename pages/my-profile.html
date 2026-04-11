@@ -426,11 +426,27 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
 
+      // ── View-As impersonation (admin only) ──
+      const urlParams = new URLSearchParams(window.location.search);
+      const viewAsId = urlParams.get('view_as');
+      const ADMIN_CHECK = ['ameenahsan7@gmail.com', 'ameen.ahsan@propertyfinder.ae'];
+      const isRealAdmin = ADMIN_CHECK.includes(session.user.email);
+      const lookupId = (viewAsId && isRealAdmin) ? viewAsId : session.user.id;
+      const impersonating = !!(viewAsId && isRealAdmin);
+
       const { data: member, error } = await sb
         .from('members')
         .select('*')
-        .eq('id', session.user.id)
+        .eq('id', lookupId)
         .single();
+
+      if (impersonating && member) {
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#f85149;color:#fff;text-align:center;padding:6px 12px;font-size:13px;font-weight:600;';
+        banner.innerHTML = `Viewing as <strong>${member.first_name} ${member.last_name || ''}</strong> (${member.email || ''}) &nbsp; <a href="admin.html" style="color:#fff;text-decoration:underline;">← Back to Admin</a>`;
+        document.body.prepend(banner);
+        document.body.style.paddingTop = '36px';
+      }
 
       if (member) {
         _memberData = member;

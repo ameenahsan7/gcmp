@@ -679,6 +679,8 @@
           </td>
           <td><span style="font-family:monospace;font-size:12px;">${m.referred_by || '—'}</span></td>
           <td class="admin-actions">
+            <button class="btn-sm" onclick="viewAsMember('${m.id}')" title="View dashboard as this user">Dashboard</button>
+            <button class="btn-sm" onclick="viewProfileAs('${m.id}')" title="View profile as this user">Profile</button>
             <button class="btn-sm btn-danger" onclick="deleteMember('${m.id}')">Remove</button>
           </td>
         </tr>
@@ -704,6 +706,14 @@
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
       showMsg('Member removed.', 'success');
       loadMembers();
+    }
+
+    // ========== VIEW AS (IMPERSONATION) ==========
+    function viewAsMember(memberId) {
+      window.open('dashboard.html?view_as=' + memberId, '_blank');
+    }
+    function viewProfileAs(memberId) {
+      window.open('my-profile.html?view_as=' + memberId, '_blank');
     }
 
     // ========== CSV EXPORT ==========

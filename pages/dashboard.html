@@ -74,14 +74,32 @@
 
       const ADMIN_EMAILS = ['ameenahsan7@gmail.com', 'ameen.ahsan@propertyfinder.ae'];
 
-      // Get member data for greeting + admin check
-      const { data: member } = await sb
-        .from('members')
-        .select('first_name, member_title')
-        .eq('id', session.user.id)
-        .single();
+      // ── View-As impersonation (admin only) ──
+      const urlParams = new URLSearchParams(window.location.search);
+      const viewAsId = urlParams.get('view_as');
+      const isRealAdmin = ADMIN_EMAILS.includes(session.user.email);
+      let impersonating = false;
 
-      if (member) {
+      // Get member data for greeting + admin check
+      let member;
+      if (viewAsId && isRealAdmin) {
+        const { data: m } = await sb.from('members').select('*').eq('id', viewAsId).single();
+        member = m;
+        impersonating = true;
+      } else {
+        const { data: m } = await sb.from('members').select('first_name, member_title').eq('id', session.user.id).single();
+        member = m;
+      }
+
+      if (impersonating && member) {
+        document.getElementById('dashGreeting').textContent = `Viewing as: ${member.first_name} ${member.last_name || ''}`;
+        // Show impersonation banner
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#f85149;color:#fff;text-align:center;padding:6px 12px;font-size:13px;font-weight:600;';
+        banner.innerHTML = `Viewing as <strong>${member.first_name} ${member.last_name || ''}</strong> (${member.email || ''}) &nbsp; <a href="admin.html" style="color:#fff;text-decoration:underline;">← Back to Admin</a>`;
+        document.body.prepend(banner);
+        document.body.style.paddingTop = '36px';
+      } else if (member) {
         document.getElementById('dashGreeting').textContent = `Welcome, ${member.first_name}`;
       } else {
         const meta = session.user.user_metadata;
@@ -112,7 +130,7 @@
         }
       }
 
-      const userId = session.user.id;
+      const userId = (impersonating && viewAsId) ? viewAsId : session.user.id;
 
       // Fetch upcoming events (only those marked show_in_portal)
       const { data: events } = await sb

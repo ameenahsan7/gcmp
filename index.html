@@ -144,7 +144,7 @@
         <p class="section-tag">Latest</p>
         <h2>News &amp; Insights</h2>
       </div>
-      <div class="articles-grid" id="newsGrid">
+      <div class="news-grid" id="newsGrid">
         <p class="article-empty">Loading articles...</p>
       </div>
     </div>
@@ -330,48 +330,29 @@
       const news = (articles || []).filter(a => a.category === 'news');
       const community = (articles || []).filter(a => a.category === 'community');
 
-      // ── News & Insights (featured hero + secondary cards) ──
+      // ── News & Insights (IEEE-style image grid, all cards flat) ──
       const newsGrid = document.getElementById('newsGrid');
       if (news.length > 0) {
-        const featured = news[0];
-        const rest = news.slice(1, 6);
-        const fDate = new Date(featured.created_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' });
-        const fExcerpt = featured.excerpt || (featured.content ? featured.content.substring(0, 200) : '');
-
-        let html = `
-          <div class="article-featured">
-            ${featured.image_url ? `<div class="article-img"><img src="${featured.image_url}" alt="${featured.title}" loading="lazy"></div>` : ''}
-            <div class="article-body">
-              ${featured.tag ? `<span class="article-tag">${featured.tag}</span>` : '<span class="article-tag">News</span>'}
-              <h3>${featured.title}</h3>
-              <p>${fExcerpt}</p>
-              <div class="article-meta">
-                <span class="article-author">${featured.author || 'GSMP'}</span>
-                <span class="article-meta-dot">&middot;</span>
-                <span>${fDate}</span>
-              </div>
-            </div>
-          </div>`;
-
-        if (rest.length > 0) {
-          html += '<div class="articles-secondary">' + rest.map(a => {
-            const date = new Date(a.created_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' });
-            return `
-              <div class="article-card">
-                ${a.image_url ? `<div class="article-img"><img src="${a.image_url}" alt="${a.title}" loading="lazy"></div>` : ''}
-                <div class="article-body">
-                  <h3>${a.title}</h3>
-                  <p>${a.excerpt || ''}</p>
-                  <div class="article-meta">
-                    <span class="article-author">${a.author || 'GSMP'}</span>
-                    <span class="article-meta-dot">&middot;</span>
-                    <span>${date}</span>
-                  </div>
+        const allNews = news.slice(0, 5);
+        newsGrid.innerHTML = allNews.map((a, i) => {
+          const date = new Date(a.created_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' });
+          const excerpt = a.excerpt || (a.content ? a.content.substring(0, 200) : '');
+          const cls = i === 0 ? 'article-featured' : 'article-card';
+          return `
+            <div class="${cls}">
+              ${a.image_url ? `<div class="article-img"><img src="${a.image_url}" alt="${a.title}" loading="lazy"></div>` : ''}
+              <div class="article-body">
+                ${a.tag ? `<span class="article-tag">${a.tag}</span>` : '<span class="article-tag">News</span>'}
+                <h3>${a.title}</h3>
+                <p>${excerpt}</p>
+                <div class="article-meta">
+                  <span class="article-author">${a.author || 'GSMP'}</span>
+                  <span class="article-meta-dot">&middot;</span>
+                  <span>${date}</span>
                 </div>
-              </div>`;
-          }).join('') + '</div>';
-        }
-        newsGrid.innerHTML = html;
+              </div>
+            </div>`;
+        }).join('');
       } else {
         newsGrid.innerHTML = '<p class="article-empty">No articles published yet. Stay tuned!</p>';
       }

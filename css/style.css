@@ -411,6 +411,13 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   overflow-y: auto;
 }
 
+/* Events — dashboard list layout */
+.dash-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 /* Events — IEEE-style image grid (homepage only, scoped under .events-grid) */
 .events-grid {
   display: grid;

@@ -390,9 +390,9 @@
       showMsg('Title updated to ' + title + '!', 'success');
     }
 
-    // ========== EVENTS (all events — chapter leads can add) ==========
+    // ========== EVENTS (only this chapter lead's own events) ==========
     async function loadEvents() {
-      const { data, error } = await sb.from('events').select('*').order('event_date', { ascending: true });
+      const { data, error } = await sb.from('events').select('*').eq('created_by', currentUserEmail).order('event_date', { ascending: true });
       if (error) { showMsg('Error loading events: ' + error.message, 'error'); return; }
       const tbody = document.getElementById('eventsTable');
       if (!data || !data.length) {
@@ -480,7 +480,7 @@
       const show_in_portal = document.getElementById('eventPortal').checked;
 
       if (editingEventId) {
-        const { error } = await sb.from('events').update({ title, event_type, event_date, location, description, show_in_portal }).eq('id', editingEventId);
+        const { error } = await sb.from('events').update({ title, event_type, event_date, location, description, show_in_portal }).eq('id', editingEventId).eq('created_by', currentUserEmail);
         if (error) { showMsg('Error: ' + error.message, 'error'); return; }
         showMsg('Event updated!', 'success');
         cancelEventEdit();
@@ -497,14 +497,14 @@
     }
 
     async function togglePortal(id, checked) {
-      const { error } = await sb.from('events').update({ show_in_portal: checked }).eq('id', id);
+      const { error } = await sb.from('events').update({ show_in_portal: checked }).eq('id', id).eq('created_by', currentUserEmail);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
       showMsg(checked ? 'Visible in portal.' : 'Hidden from portal.', 'success');
     }
 
     async function deleteEvent(id) {
       if (!confirm('Delete this event?')) return;
-      const { error } = await sb.from('events').delete().eq('id', id);
+      const { error } = await sb.from('events').delete().eq('id', id).eq('created_by', currentUserEmail);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
       showMsg('Event deleted.', 'success');
       loadEvents();
@@ -596,7 +596,7 @@
     }
 
     async function exportEventsCSV() {
-      const { data } = await sb.from('events').select('*').order('event_date', { ascending: true });
+      const { data } = await sb.from('events').select('*').eq('created_by', currentUserEmail).order('event_date', { ascending: true });
       if (!data || !data.length) { showMsg('No events to export.', 'error'); return; }
       const eventIds = data.map(e => e.id);
       const { data: rsvps } = await sb.from('event_rsvps').select('event_id, member_id').in('event_id', eventIds);

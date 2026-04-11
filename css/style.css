@@ -1011,6 +1011,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
     overflow-y: auto;
   }
   .nav-links.active a { padding: 12px 0; font-size: 16px; color: var(--gray-700) !important; }
+  .nav-links.active a.nav-btn-primary { color: var(--white) !important; }
   .nav-toggle { display: flex; }
   .navbar { padding: 10px 0; }
 

@@ -446,6 +446,13 @@
         banner.innerHTML = `Viewing as <strong>${member.first_name} ${member.last_name || ''}</strong> (${member.email || ''}) &nbsp; <a href="../admin" style="color:#fff;text-decoration:underline;">← Back to Admin</a>`;
         document.body.prepend(banner);
         document.body.style.paddingTop = '36px';
+        // Persist view_as param on all nav links
+        document.querySelectorAll('.dash-nav a, .mobile-bottomnav a').forEach(link => {
+          if (link.href && !link.href.includes('#') && !link.href.includes('view_as') && link.id !== 'logoutBtn') {
+            const sep = link.href.includes('?') ? '&' : '?';
+            link.href = link.href + sep + 'view_as=' + viewAsId;
+          }
+        });
       }
 
       if (member) {

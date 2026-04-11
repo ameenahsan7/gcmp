@@ -171,10 +171,11 @@
     const submitBtn = document.getElementById('submitBtn');
 
     // Real-time password match feedback
+    const pwField = document.getElementById('password');
     const confirmPw = document.getElementById('confirmPassword');
     const matchHint = document.getElementById('passwordMatch');
-    confirmPw.addEventListener('input', () => {
-      const pw = document.getElementById('password').value;
+    function checkPasswordMatch() {
+      const pw = pwField.value;
       const cpw = confirmPw.value;
       if (!cpw) { matchHint.style.display = 'none'; return; }
       matchHint.style.display = 'block';
@@ -185,7 +186,9 @@
         matchHint.textContent = 'Passwords do not match';
         matchHint.style.color = '#dc2626';
       }
-    });
+    }
+    pwField.addEventListener('input', checkPasswordMatch);
+    confirmPw.addEventListener('input', checkPasswordMatch);
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();

@@ -145,6 +145,7 @@
       <button class="admin-tab" data-tab="events">Events</button>
       <button class="admin-tab" data-tab="members">Members</button>
       <button class="admin-tab" data-tab="articles">Articles</button>
+      <button class="admin-tab" data-tab="shop">Shop</button>
     </div>
 
     <!-- CHAPTERS TAB -->
@@ -317,6 +318,85 @@
       </div>
       <div id="articlesListContainer">
         <p class="loading-text">Loading articles...</p>
+      </div>
+    </div>
+
+    <!-- SHOP TAB -->
+    <div class="tab-content" id="tab-shop">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <button class="btn-sm btn-add" onclick="toggleShopForm()">+ Add Item</button>
+        <button class="btn-sm btn-csv" onclick="exportShopCSV()">&#x2B73; Export CSV</button>
+      </div>
+
+      <!-- Inline add/edit form (hidden by default) -->
+      <div id="shopFormWrap" style="display:none;" class="admin-form">
+        <h3 id="shopFormTitle">Add Shop Item</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Product Name *</label>
+            <input type="text" id="shopName" placeholder="e.g. Classic Navy Scrub Set">
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="shopCategory">
+              <option value="Scrubs">Scrubs</option>
+              <option value="Compression">Compression</option>
+              <option value="Clinical Tools">Clinical Tools</option>
+              <option value="Tech & Stationery">Tech & Stationery</option>
+              <option value="Branded Gear">Branded Gear</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (USD)</label>
+            <input type="text" id="shopPrice" placeholder="e.g. 89 or 45-65">
+          </div>
+          <div class="form-group">
+            <label>Image URL</label>
+            <input type="text" id="shopImage" placeholder="https://...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Short Description</label>
+          <textarea id="shopDesc" rows="2" placeholder="One-liner shown on card"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Sort Order</label>
+            <input type="number" id="shopSort" value="0" min="0" style="max-width:80px;" title="Lower = shown first">
+          </div>
+          <div class="form-group" style="display:flex;align-items:flex-end;gap:12px;padding-bottom:2px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="shopActive" checked> Active (visible in shop)
+            </label>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:6px;">
+          <button class="btn-sm btn-add" id="shopSubmitBtn" onclick="saveShopItem()">Add Item</button>
+          <button class="btn-sm btn-edit" onclick="cancelShopEdit()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Excel-style flat table -->
+      <div style="overflow-x:auto;">
+        <table class="admin-table" id="shopTable">
+          <thead>
+            <tr>
+              <th style="width:30px;">#</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Image</th>
+              <th>Active</th>
+              <th>Sort</th>
+              <th style="width:110px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="shopTableBody">
+            <tr><td colspan="8" class="loading-text">Loading shop items...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -947,6 +1027,131 @@
       showMsg('Articles exported!', 'success');
     }
 
+    // ========== SHOP ==========
+    let editingShopId = null;
+
+    function toggleShopForm() {
+      const wrap = document.getElementById('shopFormWrap');
+      wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function loadShopItems() {
+      const { data, error } = await sb.from('shop_items').select('*').order('sort_order').order('category').order('name');
+      const tbody = document.getElementById('shopTableBody');
+      if (error) {
+        tbody.innerHTML = '<tr><td colspan="8" style="color:#f85149;">Error: ' + error.message + '</td></tr>';
+        return;
+      }
+      if (!data || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="color:#484f58;">No shop items yet. Click "+ Add Item" above.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map((item, i) => {
+        const imgCell = item.image_url
+          ? `<img src="${item.image_url}" style="width:32px;height:32px;object-fit:cover;border-radius:3px;" onerror="this.style.display='none'">`
+          : '<span style="color:#484f58;">—</span>';
+        const activeColor = item.active ? '#3fb950' : '#f85149';
+        const activeLabel = item.active ? 'Yes' : 'No';
+        return `
+          <tr>
+            <td style="color:#484f58;">${i + 1}</td>
+            <td><strong>${item.name}</strong>${item.description ? '<br><span style="font-size:11px;color:#8b949e;">' + item.description.substring(0, 60) + (item.description.length > 60 ? '...' : '') + '</span>' : ''}</td>
+            <td>${item.category || '—'}</td>
+            <td>${item.price || '—'}</td>
+            <td>${imgCell}</td>
+            <td><span style="color:${activeColor};font-weight:600;">${activeLabel}</span></td>
+            <td>${item.sort_order ?? 0}</td>
+            <td class="admin-actions">
+              <button class="btn-sm btn-edit" onclick="editShopItem('${item.id}')">Edit</button>
+              <button class="btn-sm btn-danger" onclick="deleteShopItem('${item.id}')">Del</button>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    async function saveShopItem() {
+      const name = document.getElementById('shopName').value.trim();
+      const category = document.getElementById('shopCategory').value;
+      const price = document.getElementById('shopPrice').value.trim();
+      const image_url = document.getElementById('shopImage').value.trim() || null;
+      const description = document.getElementById('shopDesc').value.trim() || null;
+      const sort_order = parseInt(document.getElementById('shopSort').value) || 0;
+      const active = document.getElementById('shopActive').checked;
+
+      if (!name) { showMsg('Product name is required.', 'error'); return; }
+
+      const payload = { name, category, price: price || null, image_url, description, sort_order, active };
+
+      if (editingShopId) {
+        const { error } = await sb.from('shop_items').update(payload).eq('id', editingShopId);
+        if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+        showMsg('Item updated!', 'success');
+        cancelShopEdit();
+      } else {
+        payload.created_by = currentUserEmail;
+        const { error } = await sb.from('shop_items').insert(payload);
+        if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+        showMsg('Item added!', 'success');
+        clearShopForm();
+      }
+      loadShopItems();
+    }
+
+    async function editShopItem(id) {
+      const { data: item } = await sb.from('shop_items').select('*').eq('id', id).single();
+      if (!item) { showMsg('Item not found.', 'error'); return; }
+      editingShopId = id;
+      document.getElementById('shopName').value = item.name || '';
+      document.getElementById('shopCategory').value = item.category || 'Scrubs';
+      document.getElementById('shopPrice').value = item.price || '';
+      document.getElementById('shopImage').value = item.image_url || '';
+      document.getElementById('shopDesc').value = item.description || '';
+      document.getElementById('shopSort').value = item.sort_order ?? 0;
+      document.getElementById('shopActive').checked = item.active !== false;
+      document.getElementById('shopFormTitle').textContent = 'Edit Item';
+      document.getElementById('shopSubmitBtn').textContent = 'Update Item';
+      document.getElementById('shopFormWrap').style.display = 'block';
+      document.getElementById('shopFormTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function cancelShopEdit() {
+      editingShopId = null;
+      clearShopForm();
+      document.getElementById('shopFormTitle').textContent = 'Add Shop Item';
+      document.getElementById('shopSubmitBtn').textContent = 'Add Item';
+      document.getElementById('shopFormWrap').style.display = 'none';
+    }
+
+    function clearShopForm() {
+      document.getElementById('shopName').value = '';
+      document.getElementById('shopPrice').value = '';
+      document.getElementById('shopImage').value = '';
+      document.getElementById('shopDesc').value = '';
+      document.getElementById('shopSort').value = '0';
+      document.getElementById('shopActive').checked = true;
+      document.getElementById('shopCategory').value = 'Scrubs';
+    }
+
+    async function deleteShopItem(id) {
+      if (!confirm('Delete this shop item?')) return;
+      const { error } = await sb.from('shop_items').delete().eq('id', id);
+      if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      showMsg('Item deleted.', 'success');
+      loadShopItems();
+    }
+
+    async function exportShopCSV() {
+      const { data } = await sb.from('shop_items').select('*').order('sort_order').order('category');
+      if (!data || !data.length) { showMsg('No shop items to export.', 'error'); return; }
+      const rows = [['Name', 'Category', 'Price', 'Description', 'Image URL', 'Active', 'Sort Order']];
+      data.forEach(item => rows.push([
+        item.name, item.category || '', item.price || '', item.description || '',
+        item.image_url || '', item.active ? 'Yes' : 'No', item.sort_order ?? 0
+      ]));
+      downloadCSV(rows, 'gsmp_shop_items.csv');
+      showMsg('Shop items exported!', 'success');
+    }
+
     // ========== ANALYTICS ==========
     async function loadAnalytics() {
       const [members, chaps, evts] = await Promise.all([
@@ -975,6 +1180,7 @@
       loadEvents();
       loadMembers();
       loadArticles();
+      loadShopItems();
       loadAnalytics();
 
       document.getElementById('logoutBtn').addEventListener('click', async (e) => {

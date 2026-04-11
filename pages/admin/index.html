@@ -325,7 +325,25 @@
     <div class="tab-content" id="tab-shop">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <button class="btn-sm btn-add" onclick="toggleShopForm()">+ Add Item</button>
-        <button class="btn-sm btn-csv" onclick="exportShopCSV()">&#x2B73; Export CSV</button>
+        <div style="display:flex;gap:6px;">
+          <label class="btn-sm btn-csv" style="cursor:pointer;margin:0;">
+            &#x2B71; Import CSV
+            <input type="file" accept=".csv" onchange="importShopCSV(this)" style="display:none;">
+          </label>
+          <button class="btn-sm btn-csv" onclick="exportShopCSV()">&#x2B73; Export CSV</button>
+        </div>
+      </div>
+      <div id="shopImportPreview" style="display:none;background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:12px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:13px;font-weight:600;color:#58a6ff;" id="importInfo">Preview</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-sm btn-add" onclick="confirmShopImport()">Confirm Import</button>
+            <button class="btn-sm btn-edit" onclick="cancelShopImport()">Cancel</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="admin-table" id="importPreviewTable"><thead></thead><tbody></tbody></table>
+        </div>
       </div>
 
       <!-- Inline add/edit form (hidden by default) -->
@@ -1150,6 +1168,142 @@
       ]));
       downloadCSV(rows, 'gsmp_shop_items.csv');
       showMsg('Shop items exported!', 'success');
+    }
+
+    // ========== SHOP CSV IMPORT ==========
+    let pendingShopImport = [];
+
+    function parseCSV(text) {
+      const rows = [];
+      let current = '', inQuotes = false, row = [];
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i], next = text[i + 1];
+        if (inQuotes) {
+          if (ch === '"' && next === '"') { current += '"'; i++; }
+          else if (ch === '"') { inQuotes = false; }
+          else { current += ch; }
+        } else {
+          if (ch === '"') { inQuotes = true; }
+          else if (ch === ',') { row.push(current.trim()); current = ''; }
+          else if (ch === '\n' || (ch === '\r' && next === '\n')) {
+            row.push(current.trim()); current = '';
+            if (row.some(c => c)) rows.push(row);
+            row = [];
+            if (ch === '\r') i++;
+          } else { current += ch; }
+        }
+      }
+      row.push(current.trim());
+      if (row.some(c => c)) rows.push(row);
+      return rows;
+    }
+
+    function importShopCSV(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const rows = parseCSV(e.target.result);
+        if (rows.length < 2) { showMsg('CSV is empty or has no data rows.', 'error'); input.value = ''; return; }
+
+        // Expected columns: Name, Category, Price, Description, Image URL, Active, Sort Order
+        const header = rows[0].map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+        const colMap = {};
+        const fields = [
+          { key: 'name', aliases: ['name', 'productname'] },
+          { key: 'category', aliases: ['category', 'cat'] },
+          { key: 'price', aliases: ['price', 'priceusd'] },
+          { key: 'description', aliases: ['description', 'shortdescription', 'desc'] },
+          { key: 'image_url', aliases: ['imageurl', 'image', 'img'] },
+          { key: 'active', aliases: ['active', 'visible'] },
+          { key: 'sort_order', aliases: ['sortorder', 'sort', 'order'] },
+        ];
+        fields.forEach(f => {
+          const idx = header.findIndex(h => f.aliases.includes(h));
+          if (idx !== -1) colMap[f.key] = idx;
+        });
+
+        if (colMap.name === undefined) { showMsg('CSV must have a "Name" column.', 'error'); input.value = ''; return; }
+
+        const items = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          const name = r[colMap.name] || '';
+          if (!name) continue;
+          const activeVal = colMap.active !== undefined ? r[colMap.active] : 'Yes';
+          items.push({
+            name,
+            category: colMap.category !== undefined ? r[colMap.category] || 'Branded Gear' : 'Branded Gear',
+            price: colMap.price !== undefined ? r[colMap.price] || null : null,
+            description: colMap.description !== undefined ? r[colMap.description] || null : null,
+            image_url: colMap.image_url !== undefined ? r[colMap.image_url] || null : null,
+            active: !activeVal || activeVal.toLowerCase() === 'yes' || activeVal === '1' || activeVal.toLowerCase() === 'true',
+            sort_order: colMap.sort_order !== undefined ? parseInt(r[colMap.sort_order]) || 0 : 0,
+          });
+        }
+
+        if (!items.length) { showMsg('No valid rows found in CSV.', 'error'); input.value = ''; return; }
+
+        pendingShopImport = items;
+
+        // Show preview
+        const preview = document.getElementById('shopImportPreview');
+        document.getElementById('importInfo').textContent = items.length + ' item' + (items.length > 1 ? 's' : '') + ' found in CSV';
+        const thead = document.querySelector('#importPreviewTable thead');
+        const tbody = document.querySelector('#importPreviewTable tbody');
+        thead.innerHTML = '<tr><th>#</th><th>Name</th><th>Category</th><th>Price</th><th>Active</th><th>Sort</th></tr>';
+        tbody.innerHTML = items.map((item, i) => `
+          <tr>
+            <td style="color:#484f58;">${i + 1}</td>
+            <td><strong>${item.name}</strong>${item.description ? '<br><span style="font-size:11px;color:#8b949e;">' + item.description.substring(0, 50) + '</span>' : ''}</td>
+            <td>${item.category}</td>
+            <td>${item.price || '—'}</td>
+            <td style="color:${item.active ? '#3fb950' : '#f85149'}">${item.active ? 'Yes' : 'No'}</td>
+            <td>${item.sort_order}</td>
+          </tr>`).join('');
+        preview.style.display = 'block';
+        input.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    async function confirmShopImport() {
+      if (!pendingShopImport.length) return;
+      const btn = document.querySelector('#shopImportPreview .btn-add');
+      btn.textContent = 'Importing...';
+      btn.disabled = true;
+
+      // Upsert: match by name, update existing or insert new
+      let updated = 0, inserted = 0, errors = 0;
+      for (const item of pendingShopImport) {
+        // Check if item with same name exists
+        const { data: existing } = await sb.from('shop_items').select('id').eq('name', item.name).limit(1);
+        if (existing && existing.length > 0) {
+          const { error } = await sb.from('shop_items').update(item).eq('id', existing[0].id);
+          if (error) { errors++; } else { updated++; }
+        } else {
+          item.created_by = currentUserEmail;
+          const { error } = await sb.from('shop_items').insert(item);
+          if (error) { errors++; } else { inserted++; }
+        }
+      }
+
+      let msg = '';
+      if (inserted) msg += inserted + ' added';
+      if (updated) msg += (msg ? ', ' : '') + updated + ' updated';
+      if (errors) msg += (msg ? ', ' : '') + errors + ' failed';
+      showMsg('Import done: ' + msg, errors ? 'error' : 'success');
+
+      cancelShopImport();
+      loadShopItems();
+    }
+
+    function cancelShopImport() {
+      pendingShopImport = [];
+      document.getElementById('shopImportPreview').style.display = 'none';
+      const btn = document.querySelector('#shopImportPreview .btn-add');
+      btn.textContent = 'Confirm Import';
+      btn.disabled = false;
     }
 
     // ========== ANALYTICS ==========

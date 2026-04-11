@@ -454,9 +454,19 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   color: var(--white);
   z-index: 1;
 }
+.events-grid .event-card { cursor: pointer; }
+.event-card-cta {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0);
+  margin-top: 8px;
+  transition: color 0.3s ease;
+  letter-spacing: 0.3px;
+}
+.events-grid .event-card:hover .event-card-cta { color: var(--gold); }
 .event-card-type {
   display: inline-block;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -464,15 +474,15 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   margin-bottom: 6px;
 }
 .event-card-overlay h4 {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--white);
   margin-bottom: 4px;
   line-height: 1.3;
 }
-.events-grid .event-card:first-child .event-card-overlay h4 { font-size: 22px; }
+.events-grid .event-card:first-child .event-card-overlay h4 { font-size: 28px; }
 .event-card-meta {
-  font-size: 12px;
+  font-size: 14px;
   color: rgba(255,255,255,0.7);
 }
 

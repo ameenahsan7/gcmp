@@ -5,65 +5,66 @@
   <link rel="icon" type="image/png" href="../images/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SaaS Admin — GSMP</title>
-  <link rel="stylesheet" href="../css/style.css?v=7">
+  <link rel="stylesheet" href="../css/style.css?v=8">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    .admin-page { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
-    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
-    .admin-header h1 { font-family: 'Playfair Display', serif; color: var(--navy); }
-    .admin-tabs { display: flex; gap: 0; border-bottom: 2px solid #e5e7eb; margin-bottom: 24px; }
-    .admin-tab { padding: 12px 24px; background: none; border: none; font-size: 15px; font-weight: 600; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
-    .admin-tab.active { color: var(--navy); border-bottom-color: var(--navy); }
-    .admin-tab:hover { color: var(--navy); }
+    body { background: #0d1117; color: #c9d1d9; }
+    .admin-page { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .admin-header h1 { font-family: 'Playfair Display', serif; color: #58a6ff; font-size: 22px; }
+    .admin-tabs { display: flex; gap: 0; border-bottom: 1px solid #30363d; margin-bottom: 16px; }
+    .admin-tab { padding: 8px 18px; background: none; border: none; font-size: 13px; font-weight: 600; color: #8b949e; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+    .admin-tab.active { color: #3fb950; border-bottom-color: #3fb950; }
+    .admin-tab:hover { color: #c9d1d9; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .admin-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-    .admin-table th { text-align: left; padding: 10px 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; border-bottom: 2px solid #e5e7eb; }
-    .admin-table td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
-    .admin-table tr:hover { background: #f9fafb; }
-    .admin-form { background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
-    .admin-form h3 { margin-bottom: 16px; font-size: 16px; color: var(--navy); }
-    .admin-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .admin-form .form-group { margin-bottom: 12px; }
-    .admin-form label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #374151; }
-    .admin-form input, .admin-form select, .admin-form textarea { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; font-family: 'Inter', sans-serif; }
-    .admin-form textarea { resize: vertical; min-height: 60px; }
-    .btn-sm { padding: 6px 14px; font-size: 13px; border-radius: 6px; border: 1px solid #d1d5db; cursor: pointer; font-weight: 600; background: #fff; color: var(--navy); transition: all 0.15s; }
-    .btn-sm:hover { background: #f3f4f6; }
-    .btn-add { background: var(--navy); color: #fff; border-color: var(--navy); }
-    .btn-add:hover { opacity: 0.9; background: var(--navy); }
-    .btn-danger { background: #fff; color: #991B1B; border-color: #991B1B; }
-    .btn-danger:hover { background: #FEF2F2; }
+    .admin-table th { text-align: left; padding: 6px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #8b949e; border-bottom: 1px solid #30363d; }
+    .admin-table td { padding: 6px 10px; border-bottom: 1px solid #21262d; font-size: 13px; color: #c9d1d9; }
+    .admin-table tr:hover { background: #161b22; }
+    .admin-form { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 14px 16px; margin-bottom: 16px; }
+    .admin-form h3 { margin-bottom: 10px; font-size: 14px; color: #3fb950; }
+    .admin-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .admin-form .form-group { margin-bottom: 8px; }
+    .admin-form label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 2px; color: #8b949e; }
+    .admin-form input, .admin-form select, .admin-form textarea { width: 100%; padding: 5px 10px; border: 1px solid #30363d; border-radius: 5px; font-size: 13px; font-family: 'Inter', sans-serif; background: #0d1117; color: #c9d1d9; }
+    .admin-form textarea { resize: vertical; min-height: 48px; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 5px; border: 1px solid #30363d; cursor: pointer; font-weight: 600; background: #21262d; color: #c9d1d9; transition: all 0.15s; }
+    .btn-sm:hover { background: #30363d; }
+    .btn-add { background: #238636; color: #fff; border-color: #238636; }
+    .btn-add:hover { opacity: 0.9; background: #2ea043; }
+    .btn-danger { background: #21262d; color: #f85149; border-color: #f85149; }
+    .btn-danger:hover { background: #2d1215; }
     .admin-actions { display: flex; gap: 6px; }
-    .admin-msg { padding: 10px 14px; border-radius: 6px; font-size: 14px; margin-bottom: 16px; display: none; }
-    .admin-back { text-decoration: none; color: var(--navy); font-size: 14px; font-weight: 500; }
+    .admin-msg { padding: 6px 12px; border-radius: 5px; font-size: 12px; margin-bottom: 10px; display: none; }
+    .admin-back { text-decoration: none; color: #58a6ff; font-size: 13px; font-weight: 500; }
     .admin-back:hover { text-decoration: underline; }
-    .member-chapter-select { padding: 4px 8px; font-size: 13px; border: 1px solid #d1d5db; border-radius: 4px; }
-    .loading-text { color: #9ca3af; font-style: italic; padding: 20px 0; }
-    .btn-csv { background: #fff; color: var(--navy); border: 1px solid #d1d5db; display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
-    .btn-csv:hover { background: #f3f4f6; }
-    .admin-msg.success { display: block; background: #f0f4f8; color: var(--navy); border: 1px solid #d1d5db; }
-    .admin-msg.error { display: block; background: #fff; color: #991B1B; border: 1px solid #e5c7c7; }
-    .chapter-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
-    .chapter-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-    .chapter-card-header h4 { font-size: 16px; color: var(--navy); margin: 0; }
-    .chapter-meta { font-size: 13px; color: #6b7280; }
-    .chapter-codes { margin-top: 12px; padding-top: 12px; border-top: 1px solid #f3f4f6; }
-    .chapter-codes h5 { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; }
-    .code-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 13px; }
-    .code-badge { font-family: monospace; font-weight: 700; letter-spacing: 1px; background: #f3f4f6; padding: 4px 10px; border-radius: 4px; color: var(--navy); }
-    .code-meta { color: #6b7280; }
-    .add-code-inline { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-    .add-code-inline input { padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; text-transform: uppercase; width: 140px; }
-    .add-code-inline input[type="number"] { width: 70px; }
-    .btn-edit { background: #fff; color: var(--navy); border: 1px solid #d1d5db; }
-    .btn-edit:hover { background: #f3f4f6; }
-    .edit-inline { background: #f9fafb; border: 1px solid #d1d5db; border-radius: 8px; padding: 16px; margin-top: 12px; }
-    .edit-inline .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .edit-inline .form-group { margin-bottom: 10px; }
-    .edit-inline label { display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 3px; }
-    .edit-inline input, .edit-inline select, .edit-inline textarea { width: 100%; padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; }
-    .edit-inline textarea { resize: vertical; min-height: 50px; }
+    .member-chapter-select { padding: 4px 8px; font-size: 12px; border: 1px solid #30363d; border-radius: 4px; background: #0d1117; color: #c9d1d9; }
+    .loading-text { color: #484f58; font-style: italic; padding: 10px 0; font-size: 12px; }
+    .btn-csv { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+    .btn-csv:hover { background: #30363d; }
+    .admin-msg.success { display: block; background: #0d2818; color: #3fb950; border: 1px solid #238636; }
+    .admin-msg.error { display: block; background: #2d1215; color: #f85149; border: 1px solid #f85149; }
+    .chapter-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+    .chapter-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .chapter-card-header h4 { font-size: 14px; color: #58a6ff; margin: 0; }
+    .chapter-meta { font-size: 12px; color: #8b949e; }
+    .chapter-codes { margin-top: 8px; padding-top: 8px; border-top: 1px solid #21262d; }
+    .chapter-codes h5 { font-size: 12px; font-weight: 600; color: #8b949e; margin-bottom: 5px; }
+    .code-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 12px; }
+    .code-badge { font-family: monospace; font-weight: 700; letter-spacing: 1px; background: #0d1117; padding: 2px 8px; border-radius: 4px; color: #3fb950; font-size: 12px; }
+    .code-meta { color: #8b949e; }
+    .add-code-inline { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+    .add-code-inline input { padding: 4px 8px; border: 1px solid #30363d; border-radius: 5px; font-size: 12px; font-family: 'Inter', sans-serif; text-transform: uppercase; width: 130px; background: #0d1117; color: #c9d1d9; }
+    .add-code-inline input[type="number"] { width: 60px; }
+    .btn-edit { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+    .btn-edit:hover { background: #30363d; }
+    .edit-inline { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 10px 12px; margin-top: 8px; }
+    .edit-inline .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .edit-inline .form-group { margin-bottom: 6px; }
+    .edit-inline label { display: block; font-size: 11px; font-weight: 600; color: #8b949e; margin-bottom: 2px; }
+    .edit-inline input, .edit-inline select, .edit-inline textarea { width: 100%; padding: 5px 8px; border: 1px solid #30363d; border-radius: 5px; font-size: 12px; font-family: 'Inter', sans-serif; background: #161b22; color: #c9d1d9; }
+    .edit-inline textarea { resize: vertical; min-height: 40px; }
     .edit-actions { display: flex; gap: 6px; margin-top: 8px; }
 
     @media (max-width: 768px) {
@@ -124,18 +125,18 @@
     <div id="adminMsg" class="admin-msg"></div>
 
     <!-- ANALYTICS -->
-    <div class="admin-stats-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;">
-      <div style="background:#f9fafb;border-radius:8px;padding:16px;text-align:center;">
-        <div style="font-size:28px;font-weight:700;color:var(--navy);" id="statMembers">-</div>
-        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Members</div>
+    <div class="admin-stats-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:12px;text-align:center;">
+        <div style="font-size:24px;font-weight:700;color:#3fb950;" id="statMembers">-</div>
+        <div style="font-size:11px;color:#8b949e;margin-top:2px;">Members</div>
       </div>
-      <div style="background:#f9fafb;border-radius:8px;padding:16px;text-align:center;">
-        <div style="font-size:28px;font-weight:700;color:var(--navy);" id="statChapters">-</div>
-        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Chapters</div>
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:12px;text-align:center;">
+        <div style="font-size:24px;font-weight:700;color:#3fb950;" id="statChapters">-</div>
+        <div style="font-size:11px;color:#8b949e;margin-top:2px;">Chapters</div>
       </div>
-      <div style="background:#f9fafb;border-radius:8px;padding:16px;text-align:center;">
-        <div style="font-size:28px;font-weight:700;color:var(--navy);" id="statEvents">-</div>
-        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Events</div>
+      <div style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:12px;text-align:center;">
+        <div style="font-size:24px;font-weight:700;color:#3fb950;" id="statEvents">-</div>
+        <div style="font-size:11px;color:#8b949e;margin-top:2px;">Events</div>
       </div>
     </div>
 
@@ -268,7 +269,7 @@
           <div class="form-group">
             <label>Title *</label>
             <input type="text" id="articleTitle" placeholder="Article title" maxlength="80">
-            <span style="font-size:11px;color:#9ca3af;">Max 80 characters</span>
+            <span style="font-size:11px;color:#484f58;">Max 80 characters</span>
           </div>
           <div class="form-group">
             <label>Category *</label>
@@ -282,7 +283,7 @@
           <div class="form-group">
             <label>Tag Label</label>
             <input type="text" id="articleTag" placeholder="e.g. Research, Opinion, Event Recap" maxlength="20">
-            <span style="font-size:11px;color:#9ca3af;">1–2 words (e.g. Research, Opinion)</span>
+            <span style="font-size:11px;color:#484f58;">1–2 words (e.g. Research, Opinion)</span>
           </div>
           <div class="form-group">
             <label>Author</label>
@@ -292,21 +293,21 @@
         <div class="form-group">
           <label>Excerpt / Summary *</label>
           <textarea id="articleExcerpt" placeholder="Short summary shown on cards (2-3 sentences)" rows="3" maxlength="600"></textarea>
-          <span style="font-size:11px;color:#9ca3af;">Featured news cards show up to ~500 chars. Community cards show ~300 chars. Write 3-5 sentences for best results.</span>
+          <span style="font-size:11px;color:#484f58;">Featured news cards show up to ~500 chars. Community cards show ~300 chars. Write 3-5 sentences for best results.</span>
         </div>
         <textarea id="articleContent" style="display:none;"></textarea>
         <div class="form-group">
           <label>Image URL</label>
           <input type="text" id="articleImage" placeholder="https://images.unsplash.com/... or any image URL">
-          <span style="font-size:11px;color:#9ca3af;">Image auto-fits any size. Best results with 600px+ wide images. Use Unsplash, Pexels or any direct image link.</span>
+          <span style="font-size:11px;color:#484f58;">Image auto-fits any size. Best results with 600px+ wide images. Use Unsplash, Pexels or any direct image link.</span>
         </div>
         <div class="form-group">
           <label>Publish Date</label>
           <input type="date" id="articleDate" style="max-width:220px;">
-          <span style="font-size:11px;color:#9ca3af;">Override the publish date. Defaults to today if left empty.</span>
+          <span style="font-size:11px;color:#484f58;">Override the publish date. Defaults to today if left empty.</span>
         </div>
         <div style="display:flex;align-items:center;gap:16px;">
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#374151;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#8b949e;cursor:pointer;">
             <input type="checkbox" id="articlePublished" checked> Published (visible on homepage)
           </label>
         </div>
@@ -801,29 +802,29 @@
       const container = document.getElementById('articlesListContainer');
       if (error) { showMsg('Error loading articles: ' + error.message, 'error'); return; }
       if (!data || !data.length) {
-        container.innerHTML = '<p style="color:#9ca3af;">No articles yet. Add one above.</p>';
+        container.innerHTML = '<p style="color:#484f58;">No articles yet. Add one above.</p>';
         return;
       }
       container.innerHTML = data.map(a => {
         const date = new Date(a.created_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' });
         const statusBadge = a.published
-          ? '<span style="background:#f0f4f8;color:var(--navy);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #d1d5db;">Published</span>'
-          : '<span style="background:#fff;color:#6b7280;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #d1d5db;">Draft</span>';
+          ? '<span style="background:#0d2818;color:#3fb950;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #238636;">Published</span>'
+          : '<span style="background:#21262d;color:#8b949e;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid #30363d;">Draft</span>';
         const catLabel = a.category === 'community' ? 'Community' : 'News';
         const imgPreview = a.image_url
-          ? `<img src="${a.image_url}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'">`
-          : '<div style="width:60px;height:60px;background:#f3f4f6;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:10px;">No img</div>';
+          ? `<img src="${a.image_url}" style="width:50px;height:50px;object-fit:cover;border-radius:5px;flex-shrink:0;" onerror="this.style.display='none'">`
+          : '<div style="width:50px;height:50px;background:#21262d;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#484f58;font-size:10px;">No img</div>';
         return `
-          <div style="display:flex;gap:14px;align-items:flex-start;padding:16px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:12px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:#161b22;border:1px solid #30363d;border-radius:8px;margin-bottom:8px;">
             ${imgPreview}
             <div style="flex:1;min-width:0;">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                <strong style="font-size:15px;color:var(--navy);">${a.title}</strong>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+                <strong style="font-size:13px;color:#c9d1d9;">${a.title}</strong>
                 ${statusBadge}
-                <span style="font-size:11px;color:#9ca3af;background:#f3f4f6;padding:2px 8px;border-radius:10px;">${catLabel}</span>
+                <span style="font-size:10px;color:#8b949e;background:#21262d;padding:2px 8px;border-radius:10px;">${catLabel}</span>
               </div>
-              <p style="font-size:13px;color:#6b7280;margin:0 0 6px;line-height:1.4;">${a.excerpt || (a.content ? a.content.substring(0, 100) + '...' : 'No content')}</p>
-              <div style="font-size:11px;color:#9ca3af;">By ${a.author || 'GSMP'} · ${date}${a.tag ? ' · ' + a.tag : ''}</div>
+              <p style="font-size:12px;color:#8b949e;margin:0 0 4px;line-height:1.4;">${a.excerpt || (a.content ? a.content.substring(0, 100) + '...' : 'No content')}</p>
+              <div style="font-size:11px;color:#484f58;">By ${a.author || 'GSMP'} · ${date}${a.tag ? ' · ' + a.tag : ''}</div>
             </div>
             <div class="admin-actions" style="flex-shrink:0;">
               <button class="btn-sm btn-edit" onclick="editArticle('${a.id}')">Edit</button>

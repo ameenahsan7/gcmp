@@ -146,6 +146,7 @@
       <button class="admin-tab" data-tab="members">Members</button>
       <button class="admin-tab" data-tab="articles">Articles</button>
       <button class="admin-tab" data-tab="shop">Shop</button>
+      <button class="admin-tab" data-tab="logs">Logs</button>
     </div>
 
     <!-- CHAPTERS TAB -->
@@ -437,6 +438,39 @@
         </table>
       </div>
     </div>
+
+    <!-- LOGS TAB -->
+    <div class="tab-content" id="tab-logs">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <select id="logFilter" style="background:#0d1117;color:#8b949e;border:1px solid #30363d;border-radius:4px;padding:4px 8px;font-size:12px;font-family:'Courier New',monospace;">
+            <option value="all">All Actions</option>
+            <option value="member">Members</option>
+            <option value="event">Events</option>
+            <option value="article">Articles</option>
+            <option value="chapter">Chapters</option>
+            <option value="shop">Shop</option>
+            <option value="auth">Auth</option>
+          </select>
+          <span id="logCount" style="font-size:11px;color:#484f58;font-family:'Courier New',monospace;">0 entries</span>
+        </div>
+        <button class="btn-sm" onclick="loadLogs()" style="background:transparent;color:#58a6ff;border-color:#30363d;font-size:11px;font-family:'Courier New',monospace;">&#x21bb; Refresh</button>
+      </div>
+      <div id="logTerminal" style="
+        background: #010409;
+        border: 1px solid #21262d;
+        border-radius: 6px;
+        padding: 16px;
+        font-family: 'Courier New', 'Fira Code', monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        max-height: 600px;
+        overflow-y: auto;
+        color: #7ee787;
+      ">
+        <span style="color:#484f58;">Loading logs...</span>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -477,6 +511,53 @@
       msg.className = 'admin-msg ' + type;
       setTimeout(() => { msg.className = 'admin-msg'; }, 4000);
     }
+
+    // ========== ACTIVITY LOGGING ==========
+    async function logAction(category, action, details) {
+      try {
+        await sb.from('activity_logs').insert({
+          user_email: currentUserEmail,
+          category: category,
+          action: action,
+          details: details || null
+        });
+      } catch (e) { console.warn('Log write failed:', e); }
+    }
+
+    async function loadLogs() {
+      const filter = document.getElementById('logFilter').value;
+      let query = sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200);
+      if (filter !== 'all') query = query.eq('category', filter);
+      const { data, error } = await query;
+      const terminal = document.getElementById('logTerminal');
+      const countEl = document.getElementById('logCount');
+      if (error) { terminal.innerHTML = '<span style="color:#f85149;">ERROR: ' + error.message + '</span>'; return; }
+      if (!data || !data.length) {
+        terminal.innerHTML = '<span style="color:#484f58;">No logs found.</span>';
+        countEl.textContent = '0 entries';
+        return;
+      }
+      countEl.textContent = data.length + ' entries';
+      const COLORS = { member: '#58a6ff', event: '#d2a8ff', article: '#79c0ff', chapter: '#f0883e', shop: '#3fb950', auth: '#f778ba', code: '#ffa657' };
+      terminal.innerHTML = data.map(log => {
+        const ts = new Date(log.created_at);
+        const time = ts.toLocaleString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+        const catColor = COLORS[log.category] || '#8b949e';
+        const user = (log.user_email || 'system').split('@')[0];
+        return `<div style="border-bottom:1px solid #161b22;padding:3px 0;">` +
+          `<span style="color:#484f58;">${time}</span> ` +
+          `<span style="color:${catColor};font-weight:bold;">[${log.category.toUpperCase()}]</span> ` +
+          `<span style="color:#c9d1d9;">${log.action}</span>` +
+          (log.details ? ` <span style="color:#6e7681;">— ${log.details}</span>` : '') +
+          ` <span style="color:#30363d;">by</span> <span style="color:#ffa657;">${user}</span>` +
+          `</div>`;
+      }).join('');
+      // auto-scroll to top
+      terminal.scrollTop = 0;
+    }
+
+    // Filter change triggers reload
+    document.getElementById('logFilter')?.addEventListener('change', loadLogs);
 
     // ========== CHAPTERS (with inline codes) ==========
     async function loadChapters() {
@@ -570,6 +651,7 @@
 
       const { error } = await sb.from('chapters').insert({ name, city, country, status, description, created_by: currentUserEmail });
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('chapter', 'Created chapter', name + ' (' + city + ', ' + country + ')');
       showMsg('Chapter added!', 'success');
       document.getElementById('chapterName').value = '';
       document.getElementById('chapterCity').value = '';
@@ -592,6 +674,7 @@
       await sb.from('referral_codes').delete().eq('chapter_id', id);
       const { error } = await sb.from('chapters').delete().eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('chapter', 'Deleted chapter', 'ID: ' + id);
       showMsg('Chapter deleted.', 'success');
       loadChapters();
       loadAnalytics();
@@ -612,6 +695,7 @@
 
       const { error } = await sb.from('chapters').update({ name, city, country, status, description }).eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('chapter', 'Updated chapter', name);
       showMsg('Chapter updated!', 'success');
       loadChapters();
     }
@@ -625,6 +709,7 @@
 
       const { error } = await sb.from('referral_codes').insert({ code, max_uses, note, chapter_id: chapterId, active: true, times_used: 0, created_by: currentUserEmail });
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('code', 'Created referral code', code + ' (max: ' + max_uses + ')');
       showMsg('Code added!', 'success');
       loadChapters();
     }
@@ -632,6 +717,7 @@
     async function toggleCode(id, active) {
       const { error } = await sb.from('referral_codes').update({ active }).eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('code', active ? 'Activated referral code' : 'Deactivated referral code', 'ID: ' + id);
       showMsg(active ? 'Code activated.' : 'Code deactivated.', 'success');
     }
 
@@ -639,6 +725,7 @@
       if (!confirm('Delete this code?')) return;
       const { error } = await sb.from('referral_codes').delete().eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('code', 'Deleted referral code', 'ID: ' + id);
       showMsg('Code deleted.', 'success');
       loadChapters();
     }
@@ -736,11 +823,13 @@
       if (editingEventId) {
         const { error } = await sb.from('events').update({ title, event_type, event_date, location, description, show_in_portal }).eq('id', editingEventId);
         if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+        logAction('event', 'Updated event', title);
         showMsg('Event updated!', 'success');
         cancelEventEdit();
       } else {
         const { error } = await sb.from('events').insert({ title, event_type, event_date, location, description, show_in_portal, created_by: currentUserEmail });
         if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+        logAction('event', 'Created event', title + ' on ' + event_date);
         showMsg('Event added!', 'success');
         document.getElementById('eventTitle').value = '';
         document.getElementById('eventDate').value = '';
@@ -754,6 +843,7 @@
     async function togglePortal(id, checked) {
       const { error } = await sb.from('events').update({ show_in_portal: checked }).eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('event', checked ? 'Showed event in portal' : 'Hid event from portal', 'ID: ' + id);
       showMsg(checked ? 'Event visible in portal.' : 'Event hidden from portal.', 'success');
     }
 
@@ -761,6 +851,7 @@
       if (!confirm('Delete this event?')) return;
       const { error } = await sb.from('events').delete().eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('event', 'Deleted event', 'ID: ' + id);
       showMsg('Event deleted.', 'success');
       loadEvents();
       loadAnalytics();
@@ -809,12 +900,15 @@
       const value = chapterId || null;
       const { error } = await sb.from('members').update({ chapter_id: value }).eq('id', memberId);
       if (error) { showMsg('Error assigning chapter: ' + error.message, 'error'); return; }
+      const chName = chapters.find(c => c.id === chapterId)?.name || 'None';
+      logAction('member', 'Assigned chapter', 'Member ' + memberId.slice(0,8) + '… → ' + chName);
       showMsg('Chapter assigned!', 'success');
     }
 
     async function assignTitle(memberId, title) {
       const { error } = await sb.from('members').update({ member_title: title }).eq('id', memberId);
       if (error) { showMsg('Error assigning title: ' + error.message, 'error'); return; }
+      logAction('member', 'Changed member title', 'Member ' + memberId.slice(0,8) + '… → ' + title);
       showMsg('Title updated to ' + title + '!', 'success');
     }
 
@@ -822,6 +916,7 @@
       if (!confirm('Remove this member? This only removes their profile, not their auth account.')) return;
       const { error } = await sb.from('members').delete().eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('member', 'Deleted member', 'ID: ' + id);
       showMsg('Member removed.', 'success');
       loadMembers();
     }
@@ -982,11 +1077,13 @@
       if (editingArticleId) {
         const { error } = await sb.from('articles').update(payload).eq('id', editingArticleId);
         if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+        logAction('article', 'Updated article', title);
         showMsg('Article updated!', 'success');
         cancelArticleEdit();
       } else {
         const { error } = await sb.from('articles').insert(payload);
         if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+        logAction('article', 'Created article', title + ' [' + category + ']');
         showMsg('Article added!', 'success');
         clearArticleForm();
       }
@@ -1040,6 +1137,7 @@
     async function toggleArticlePublish(id, published) {
       const { error } = await sb.from('articles').update({ published }).eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('article', published ? 'Published article' : 'Unpublished article', 'ID: ' + id);
       showMsg(published ? 'Article published!' : 'Article unpublished.', 'success');
       loadArticles();
     }
@@ -1048,6 +1146,7 @@
       if (!confirm('Delete this article? This cannot be undone.')) return;
       const { error } = await sb.from('articles').delete().eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('article', 'Deleted article', 'ID: ' + id);
       showMsg('Article deleted.', 'success');
       loadArticles();
     }
@@ -1171,6 +1270,7 @@
       if (inserted) msg += inserted + ' added';
       if (updated) msg += (msg ? ', ' : '') + updated + ' updated';
       if (errors) msg += (msg ? ', ' : '') + errors + ' failed';
+      logAction('article', 'CSV import', msg);
       showMsg('Import done: ' + msg, errors ? 'error' : 'success');
 
       cancelArticleImport();
@@ -1243,12 +1343,14 @@
       if (editingShopId) {
         const { error } = await sb.from('shop_items').update(payload).eq('id', editingShopId);
         if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+        logAction('shop', 'Updated shop item', name);
         showMsg('Item updated!', 'success');
         cancelShopEdit();
       } else {
         payload.created_by = currentUserEmail;
         const { error } = await sb.from('shop_items').insert(payload);
         if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+        logAction('shop', 'Added shop item', name + ' [' + category + '] ' + (price || 'no price'));
         showMsg('Item added!', 'success');
         clearShopForm();
       }
@@ -1294,6 +1396,7 @@
       if (!confirm('Delete this shop item?')) return;
       const { error } = await sb.from('shop_items').delete().eq('id', id);
       if (error) { showMsg('Error: ' + error.message, 'error'); return; }
+      logAction('shop', 'Deleted shop item', 'ID: ' + id);
       showMsg('Item deleted.', 'success');
       loadShopItems();
     }
@@ -1432,6 +1535,7 @@
       if (inserted) msg += inserted + ' added';
       if (updated) msg += (msg ? ', ' : '') + updated + ' updated';
       if (errors) msg += (msg ? ', ' : '') + errors + ' failed';
+      logAction('shop', 'CSV import', msg);
       showMsg('Import done: ' + msg, errors ? 'error' : 'success');
 
       cancelShopImport();
@@ -1476,6 +1580,8 @@
       loadArticles();
       loadShopItems();
       loadAnalytics();
+      loadLogs();
+      logAction('auth', 'Admin portal opened', currentUserEmail);
 
       document.getElementById('logoutBtn').addEventListener('click', async (e) => {
         e.preventDefault();
